@@ -23,40 +23,53 @@ collection = database['documents']
 
 # Tokenize
 model = SentenceTransformer('all-MiniLM-L6-v2')
-print('=' * 80)
-sentence = input('Prompt (<q> to quit): ')
-print('=' * 80)
 
-while sentence != 'q':
-    x_query = model.encode(sentence).tolist()
+while True:
+    domain = input('도메인 (<q> to quit): ')
+    if domain == 'q':
+        break
+    problem = input('해결하고자 하는 문제: ')
+    solution = input('해결 방법: ')
+
+    # TODO: Do something about this
+    sentence = f'Domain: {domain}, Problem statement: {problem}, Solution: {solution}'
+
+    query = model.encode(sentence).tolist()
 
     # Query
-    resp = index.query(
-        namespace='prototype',
-        vector = x_query,
+    resp_raw = index.query(
+        namespace='raw',
+        vector=query,
         top_k=1,
     )
 
-    result = resp['matches'][0]
-    doc_id = result['id']
-    score = result['score']
+    resp_summary = index.query(
+        namespace='summary',
+        vector=query,
+        top_k=1,
+    )
 
-    # MongoDB
-    doc = collection.find_one({
-        '_id': doc_id,
-    })
+    # Result: Raw text
+    result_raw = resp_raw['matches'][0]
+    doc_id_raw = result_raw['id']
+    score_raw = result_raw['score']
+    doc_raw = collection.find_one({ '_id': doc_id_raw })
 
-    print('<QUERY>')
-    print(sentence)
-    print('\n<SCORE>')
-    print(score)
-    print('\n<ID>')
-    print(doc_id)
-    print('\n<TITLE>')
-    print(doc['title'])
-    print('\n<ABSTRACT>')
-    print(doc['abstract'])
-    print('=' * 80)
+    # Result: Summary
+    result_summary = resp_summary['matches'][0]
+    doc_id_summary = result_summary['id']
+    score_summary = result_summary['score']
+    doc_summary = collection.find_one({ '_id': doc_id_summary })
 
-    sentence = input('Prompt (<q> to quit): ')
-    print('=' * 80)
+    raw_title = doc_raw['title'] if len(doc_raw['title']) < 55 else doc_raw['title'][:51] + '...'
+    summary_title = doc_summary['title'] if len(doc_summary['title']) < 55 else doc_summary['title'][:51] + '...'
+
+    print()
+    print(f'┌────────────┬────────┬────────────────────────────────────────────────────────┐')
+    print(f'│ Type       │ Score  │ Title                                                  │')
+    print(f'├────────────┼────────┼────────────────────────────────────────────────────────┤')
+    print(f'│ Abstract   │ {score_raw:.4f} │ {raw_title:54} │')
+    print(f'├────────────┼────────┼────────────────────────────────────────────────────────┤')
+    print(f'│ Summarized │ {score_summary:.4f} | {summary_title:54} │')
+    print(f'└────────────┴────────┴────────────────────────────────────────────────────────┘')
+    print()
