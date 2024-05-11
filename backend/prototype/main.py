@@ -29,18 +29,30 @@ model = SentenceTransformer('all-MiniLM-L6-v2')
 with open('dataset-test.json', 'r') as file:
     dataset = json.load(file)
 
-    vectors = []
+    vectors_raw_text = []
+    vectors_summarized = []
     documents = []
 
     for data in dataset:
         doc_id = str(uuid.uuid4())
 
-        sentence = f'{data['title']}. {data['abstract']}'
-        embedding = model.encode(sentence)
+        raw_text = f'Title: {data['title']}. Abstract: {data['abstract']}'
+        summarized = data['result']['summary']
+        keywords = data['result']['keywords']
 
-        vectors.append({
+        embed_raw_text = model.encode(raw_text)
+        embed_summarized = model.encode(summarized)
+
+        vectors_raw_text.append({
             'id': doc_id,
-            'values': embedding
+            'values': embed_raw_text,
+            'metadata': { 'keywords': keywords }
+        })
+
+        vectors_summarized.append({
+            'id': doc_id,
+            'values': embed_summarized,
+            'metadata': { 'keywords': keywords }
         })
 
         documents.append({
@@ -50,7 +62,8 @@ with open('dataset-test.json', 'r') as file:
         })
 
     # Pinecone
-    index.upsert(vectors=vectors, namespace='prototype')
+    index.upsert(vectors=vectors_raw_text, namespace='raw')
+    index.upsert(vectors=vectors_summarized, namespace='summary')
 
     # MongoDB
     collection.insert_many(documents)
