@@ -27,11 +27,11 @@ python prototype/query.py
 해결 방법: I want to utilize convolutional neural network with idea from ViT
 
 ┌────────────┬────────┬────────────────────────────────────────────────────────┐
-│ Type       │ Score  │ Title                                                  │
+│ Embedding  │ Score  │ Title                                                  │
 ├────────────┼────────┼────────────────────────────────────────────────────────┤
 │ Abstract   │ 0.5372 │ A ConvNet for the 2020s                                │
 ├────────────┼────────┼────────────────────────────────────────────────────────┤
-│ Summarized │ 0.5220 | Deep ViT: Towards Deeper Vision Transformer            │
+│ Summarized │ 0.5220 │ Deep ViT: Towards Deeper Vision Transformer            │
 └────────────┴────────┴────────────────────────────────────────────────────────┘
 ```
 검색할 논문에 대한 문장 프롬프트 입력 후 결과 반환.

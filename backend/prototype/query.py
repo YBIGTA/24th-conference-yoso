@@ -66,10 +66,10 @@ while True:
 
     print()
     print(f'┌────────────┬────────┬────────────────────────────────────────────────────────┐')
-    print(f'│ Type       │ Score  │ Title                                                  │')
+    print(f'│ Embedding  │ Score  │ Title                                                  │')
     print(f'├────────────┼────────┼────────────────────────────────────────────────────────┤')
     print(f'│ Abstract   │ {score_raw:.4f} │ {raw_title:54} │')
     print(f'├────────────┼────────┼────────────────────────────────────────────────────────┤')
-    print(f'│ Summarized │ {score_summary:.4f} | {summary_title:54} │')
+    print(f'│ Summarized │ {score_summary:.4f} │ {summary_title:54} │')
     print(f'└────────────┴────────┴────────────────────────────────────────────────────────┘')
-    print()
+    print('\n'*12)
