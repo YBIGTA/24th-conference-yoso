@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from .config import settings
 
 
 app = FastAPI()
@@ -6,4 +7,6 @@ app = FastAPI()
 
 @app.get("/")
 def read_root():
-    return {"Hello": "World"}
+    return {
+        "pinecone-env": settings.PINECONE_ENV
+    }
