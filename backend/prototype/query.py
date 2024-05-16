@@ -1,4 +1,5 @@
 import os
+import numpy as np
 from dotenv import load_dotenv
 from pinecone import Pinecone
 from sentence_transformers import SentenceTransformer
@@ -14,7 +15,8 @@ MONGODB_URI = os.getenv('MONGODB_URI')
 
 # Pinecone client
 pc = Pinecone(api_key=PINECONE_API_KEY)
-index = pc.Index('prototype')
+index_raw = pc.Index('prototype')
+index_sum = pc.Index('yoso')
 
 # MongoDB client
 client = MongoClient(MONGODB_URI, server_api=ServerApi('1'))
@@ -33,19 +35,21 @@ while True:
 
     # TODO: Do something about this
     sentence = f'Domain: {domain}, Problem statement: {problem}, Solution: {solution}'
+    sentences = [domain, problem, solution]
 
-    query = model.encode(sentence).tolist()
+    query_raw = model.encode(sentence).tolist()
+    query_sum = np.concatenate([emb for emb in model.encode(sentences)]).tolist()
 
     # Query
-    resp_raw = index.query(
-        namespace='raw',
-        vector=query,
+    resp_raw = index_raw.query(
+        namespace='raw_v2',
+        vector=query_raw,
         top_k=1,
     )
 
-    resp_summary = index.query(
+    resp_summary = index_sum.query(
         namespace='summary',
-        vector=query,
+        vector=query_sum,
         top_k=1,
     )
 
@@ -61,8 +65,13 @@ while True:
     score_summary = result_summary['score']
     doc_summary = collection.find_one({ '_id': doc_id_summary })
 
-    raw_title = doc_raw['title'] if len(doc_raw['title']) < 55 else doc_raw['title'][:51] + '...'
-    summary_title = doc_summary['title'] if len(doc_summary['title']) < 55 else doc_summary['title'][:51] + '...'
+    raw_title = (doc_raw['title'] 
+                 if len(doc_raw['title']) < 55 
+                 else doc_raw['title'][:51] + '...')
+    
+    summary_title = (doc_summary['title'] 
+                     if len(doc_summary['title']) < 55 
+                     else doc_summary['title'][:51] + '...')
 
     print()
     print(f'┌────────────┬────────┬────────────────────────────────────────────────────────┐')
