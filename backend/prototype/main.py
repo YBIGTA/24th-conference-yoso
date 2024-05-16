@@ -18,7 +18,7 @@ MONGODB_URI = os.getenv('MONGODB_URI')
 # Pinecone client
 pc = Pinecone(api_key=PINECONE_API_KEY)
 index_raw = pc.Index('prototype')
-index_sum = pc.Index('yoso')
+index_sum = pc.Index('dps')
 
 # MongoDB client
 client = MongoClient(MONGODB_URI, server_api=ServerApi('1'))
@@ -34,7 +34,7 @@ def concat_embedding(domain: str, problem: str, solution: str) -> np.ndarray:
     return np.concatenate([emb for emb in embeddings])
 
 
-with open('dataset-summary.json', 'r') as file:
+with open('dataset-test-DPS.json', 'r') as file:
     dataset = json.load(file)
 
     vectors_raw_text = []
@@ -44,36 +44,40 @@ with open('dataset-summary.json', 'r') as file:
     for data in dataset:
         doc_id = str(uuid.uuid4())
 
-        raw_text = f'Title: {data['title']}. Abstract: {data['abstract']}'
-        domain = data['result']['domain']
-        problem = data['result']['problem']
-        solution = data['result']['solution']
-        keywords = data['result']['keywords']
+        try:
+            raw_text = f'Title: {data['title']}. Abstract: {data['abstract']}'
+            domain = data['result']['domain']
+            problem = data['result']['problem']
+            solution = data['result']['solution']
+            keywords = data['result']['keywords']
 
-        # Make embeddings
-        embed_raw_text = model.encode(raw_text)
-        embed_summarized = concat_embedding(domain, problem, solution)
+            # Make embeddings
+            embed_raw_text = model.encode(raw_text)
+            embed_summarized = concat_embedding(domain, problem, solution)
 
-        # Raw embedding
-        vectors_raw_text.append({
-            'id': doc_id,
-            'values': embed_raw_text,
-            'metadata': { 'keywords': keywords }
-        })
+            # Raw embedding
+            vectors_raw_text.append({
+                'id': doc_id,
+                'values': embed_raw_text,
+                'metadata': { 'keywords': keywords }
+            })
 
-        # Summary embedding
-        vectors_summarized.append({
-            'id': doc_id,
-            'values': embed_summarized,
-            'metadata': { 'keywords': keywords }
-        })
+            # Summary embedding
+            vectors_summarized.append({
+                'id': doc_id,
+                'values': embed_summarized,
+                'metadata': { 'keywords': keywords }
+            })
 
-        # Parsed document
-        documents.append({
-            '_id': doc_id,
-            'title': data['title'],
-            'abstract': data['abstract']
-        })
+            # Parsed document
+            documents.append({
+                '_id': doc_id,
+                'title': data['title'],
+                'abstract': data['abstract']
+            })
+        except Exception as e:
+            print(f"Error inserting data:")
+            print(e)
 
     # Pinecone
     index_raw.upsert(vectors=vectors_raw_text, namespace='raw_v2')
