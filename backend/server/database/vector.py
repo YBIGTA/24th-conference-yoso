@@ -1,6 +1,5 @@
 import numpy as np
 from numpy.linalg import norm
-from dotenv import load_dotenv
 from pinecone import Pinecone
 from sentence_transformers import SentenceTransformer
 from server.config.core import settings
