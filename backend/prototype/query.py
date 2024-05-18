@@ -72,14 +72,14 @@ while True:
                     else doc_raw['title'][:64] + '...')
         
         print(f'├────────┼─────────────────────────────────────────────────────────────────────┤')
-        print(f'│ {score_raw:.4f} │ {raw_title.replace('\n', ''):67} │')
+        print(f'│ {score_raw:.4f} │ {raw_title.replace("\n", ""):67} │')
     
     print(f'└────────┴─────────────────────────────────────────────────────────────────────┘')
         
     # Result: Summary
     print()
     print(f'┌──────────────────────────────────────────────────────────────────────────────┐')
-    print(f'│ {"Domain, Problem, Summary": ^76} │')
+    print(f'│ {"Domain, Problem, Solution": ^76} │')
     print(f'├────────┬─────────────────────────────────────────────────────────────────────┤')
     print(f'│ Score  │ Title                                                               │')
     
@@ -94,7 +94,7 @@ while True:
                         else doc_summary['title'][:64] + '...')
         
         print(f'├────────┼─────────────────────────────────────────────────────────────────────┤')
-        print(f'│ {score_summary:.4f} │ {summary_title.replace('\n', ''):67} │')
+        print(f'│ {score_summary:.4f} │ {summary_title.replace("\n", ""):67} │')
 
     print(f'└────────┴─────────────────────────────────────────────────────────────────────┘')
         
