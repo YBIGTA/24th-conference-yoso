@@ -2,60 +2,18 @@
 데이터베이스 서버
 - 논모정 DB: MongoDB
 - 임베딩 DB: Pinecone
+- 그래프 DB: Neo4j
 
 ## 실행
 ### 환경 변수 설정
 `.env.example` 파일을 `.env`로 복사 후 모든 값 채워넣기
 
-### 요구사항 설치
+### 도커 컨테이너 실행
 ```bash
-pip install -r requirements.txt
+docker compose up --build server
 ```
 
-### JSON 파일 데이터 DB에 저장
+### REST API 호출
 ```bash
-python prototype/main.py
+GET localhost/search?domain=<도메인>&problem=<문제>&solution=<해결방안>
 ```
-`dataset-test.json`에 있는 샘플 데이터 읽어서 Pinecone, MongoDB에 저장
-
-### 쿼리
-```bash
-python prototype/query.py
-
-도메인 (<q> to quit): Computer Vision
-해결하고자 하는 문제: Limitations of ViT
-해결 방법: I want to utilize convolutional neural network with idea from ViT
-
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                   Abstract                                   │
-├────────┬─────────────────────────────────────────────────────────────────────┤
-│ Score  │ Title                                                               │
-├────────┼─────────────────────────────────────────────────────────────────────┤
-│ 0.5876 │ A ConvNet for the 2020s                                             │
-├────────┼─────────────────────────────────────────────────────────────────────┤
-│ 0.5707 │ Deep ViT: Towards Deeper Vision Transformer                         │
-├────────┼─────────────────────────────────────────────────────────────────────┤
-│ 0.5694 │ CvT: Introducing Convolutions to Vision Transformers                │
-├────────┼─────────────────────────────────────────────────────────────────────┤
-│ 0.5687 │ Tokens-to- Token ViT: Training Vision Transformers from Scratch ... │
-├────────┼─────────────────────────────────────────────────────────────────────┤
-│ 0.5429 │ AN IMAGE IS WORTH 16x16 WORDS:TRANSFORMERS FOR IMAGE RECOGNITIO...  │
-└────────┴─────────────────────────────────────────────────────────────────────┘
-
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                           Domain, Problem, Summary                           │
-├────────┬─────────────────────────────────────────────────────────────────────┤
-│ Score  │ Title                                                               │
-├────────┼─────────────────────────────────────────────────────────────────────┤
-│ 0.6253 │ Deep ViT: Towards Deeper Vision Transformer                         │
-├────────┼─────────────────────────────────────────────────────────────────────┤
-│ 0.6191 │ Tokens-to- Token ViT: Training Vision Transformers from Scratch ... │
-├────────┼─────────────────────────────────────────────────────────────────────┤
-│ 0.6189 │ CvT: Introducing Convolutions to Vision Transformers                │
-├────────┼─────────────────────────────────────────────────────────────────────┤
-│ 0.5540 │ A ConvNet for the 2020s                                             │
-├────────┼─────────────────────────────────────────────────────────────────────┤
-│ 0.5186 │ Visformer: The Vision-friendly Transformer                          │
-└────────┴─────────────────────────────────────────────────────────────────────┘
-```
-검색할 논문에 대한 문장 프롬프트 입력 후 결과 반환.
