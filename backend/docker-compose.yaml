@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  server:
+    build:
+      context: .
+      dockerfile: ./server/Dockerfile
+    image: yoso-server
+    env_file:
+      - .env
+    ports:
+      - 80:80
+  graph:
+    image: neo4j
+    ports:
+      - 7474:7474
+      - 7687:7687
