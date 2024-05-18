@@ -17,7 +17,7 @@ async def search(domain: str, problem: str, solution: str):
     
     results = [{
         "id": doc["_id"],
-        "title": doc["title"],
+        "title": doc["title"].replace("-\n", "").replace("\n", " "),
     } for doc in docs]
 
     return {
