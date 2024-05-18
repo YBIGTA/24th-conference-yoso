@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings
 
 
 class Development(BaseSettings):
@@ -14,8 +14,7 @@ class Development(BaseSettings):
     # MongoDB
     MONGODB_URI: str = os.getenv("MONGODB_URI")
     MONGODB_DATABASE: str = os.getenv("MONGODB_DATABASE")
-    
-    # model_config = SettingsConfigDict(env_file='../../.env')
+    MONGODB_COLLECTION: str = os.getenv("MONGODB_COLLECTION")
     
 
 class Deployment(BaseSettings):
@@ -27,6 +26,7 @@ class Deployment(BaseSettings):
     # MongoDB
     MONGODB_URI: str
     MONGODB_DATABASE: str
+    MONGODB_COLLECTION: str
 
 
 settings = Development()
