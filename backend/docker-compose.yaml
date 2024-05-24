@@ -14,3 +14,6 @@ services:
     ports:
       - 7474:7474
       - 7687:7687
+    volumes:
+      - ./server/database/neo4j/data:/data
+      - ./server/database/neo4j/logs:/logs
