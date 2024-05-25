@@ -29,4 +29,4 @@ class Deployment(BaseSettings):
     MONGODB_COLLECTION: str
 
 
-settings = Development()
+settings = Deployment()
