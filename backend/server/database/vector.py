@@ -1,7 +1,7 @@
 import numpy as np
-from pinecone import Pinecone
+from pinecone import Pinecone, UpsertResponse
 from sentence_transformers import SentenceTransformer
-from server.config.core import settings
+from server.core.config import settings
 
 # Environment variables
 PINECONE_API_KEY = settings.PINECONE_API_KEY
@@ -33,6 +33,24 @@ def cosine_similarity(
 ) -> float:
     """Calculates cosine similarity of two vectors."""
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+
+
+def create_vector(
+    id: str,
+    domain: str,
+    problem: str,
+    solution: str,
+) -> UpsertResponse:
+    """Create and upsert vector into vector store."""
+    vector = {
+        "id": id,
+        "values": create_embedding(domain, problem, solution),
+    }
+
+    return index.upsert(
+        vectors=[vector],
+        namespace=model_name
+    )
 
 
 def search_by_sentence(

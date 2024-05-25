@@ -37,7 +37,7 @@ def sanitize_title(
 
 
 def match_referenced_nodes(
-    driver: Driver,
+    # driver: Driver,
     paper_id: str
 ) -> list[str]:
     """Fetches nodes that reference this node.
@@ -52,18 +52,19 @@ def match_referenced_nodes(
         A list of strings containing string ID values of nodes that reference
         this paper.
     """
-    results, _, _ = driver.execute_query(
-        "MATCH (p: Paper)-[:REFERENCES]->(q: Paper {paper_id: $paper_id}) "
-        "WHERE p.paper_id IS NOT NULL "
-        "RETURN p.paper_id",
-        paper_id=paper_id
-    )
+    with GraphDatabase.driver(uri=URI, auth=AUTH) as driver:
+        results, _, _ = driver.execute_query(
+            "MATCH (p: Paper)-[:REFERENCES]->(q: Paper {paper_id: $paper_id}) "
+            "WHERE p.paper_id IS NOT NULL "
+            "RETURN p.paper_id",
+            paper_id=paper_id
+        )
 
     return [result["p.paper_id"] for result in results]
 
 
 def match_referencing_nodes(
-    driver: Driver,
+    # driver: Driver,
     paper_id: str
 ) -> list[str]:
     """Fetches nodes that this paper references.
@@ -79,20 +80,22 @@ def match_referencing_nodes(
         references. Referenced papers that do not exist in NMJ DB, that is, ones 
         with no paper ID values, will be skipped.
     """
-    results, _, _ = driver.execute_query(
-        "MATCH (p: Paper {paper_id: $paper_id})-[:REFERENCES]->(q: Paper) "
-        "WHERE q.paper_id IS NOT NULL "
-        "RETURN q.paper_id",
-        paper_id=paper_id
-    )
+    with GraphDatabase.driver(uri=URI, auth=AUTH) as driver:
+        results, _, _ = driver.execute_query(
+            "MATCH (p: Paper {paper_id: $paper_id})-[:REFERENCES]->(q: Paper) "
+            "WHERE q.paper_id IS NOT NULL "
+            "RETURN q.paper_id",
+            paper_id=paper_id
+        )
 
     return [result["q.paper_id"] for result in results 
             if result["q.paper_id"] is not None]
 
 
 def create_node(
-    driver: Driver, 
-    **kwargs
+    # driver: Driver, 
+    id: str,
+    title: str,
 ) -> str:
     """Creates a node.
 
@@ -100,7 +103,8 @@ def create_node(
 
     Args:
         driver: Driver.
-        **kwargs: Field values of papers
+        id: String ID value.
+        title: Title of the paper.
 
     Returns:
         String ID value of the node created.
@@ -108,26 +112,27 @@ def create_node(
     Raises:
         ValidationError: An error occured due to missing fields.
     """
-    try:
-        # Validate input
-        paper = Paper(**kwargs)
-        paper.s_title = sanitize_title(paper.title)
+    with GraphDatabase.driver(uri=URI, auth=AUTH) as driver:
+        try:
+            # Validate input
+            paper = Paper(paper_id=id, title=title)
+            paper.s_title = sanitize_title(paper.title)
 
-        # Query
-        result = driver.execute_query(
-            "CREATE (p: Paper {paper_id: $paper_id, title: $title, s_title: $s_title})"
-            "RETURN p.paper_id",
-            parameters_=paper.model_dump(),
-            result_transformer_=Result.single
-        )
+            # Query
+            result = driver.execute_query(
+                "CREATE (p: Paper {paper_id: $paper_id, title: $title, s_title: $s_title})"
+                "RETURN p.paper_id",
+                parameters_=paper.model_dump(),
+                result_transformer_=Result.single
+            )
 
-        return result['p.paper_id']
-    except ValidationError as e:
-        raise e
+            return result['p.paper_id']
+        except ValidationError as e:
+            raise e
 
 
 def create_relationship(
-    driver: Driver, 
+    # driver: Driver, 
     title: str, 
     ref_title: str
 ) -> tuple[str, str]:
@@ -144,15 +149,16 @@ def create_relationship(
     Returns:
         String ID values of referencing paper and referenced paper.
     """
-    result = driver.execute_query(
-        "MERGE (p: Paper {s_title: $s_title}) "
-        "MERGE (q: Paper {s_title: $ref_s_title}) "
-        "MERGE (p)-[:REFERENCES]->(q)"
-        "RETURN p, q",
-        s_title=sanitize_title(title),
-        ref_s_title=sanitize_title(ref_title),
-        result_transformer_=Result.single
-    )
+    with GraphDatabase.driver(uri=URI, auth=AUTH) as driver:
+        result = driver.execute_query(
+            "MERGE (p: Paper {s_title: $s_title}) "
+            "MERGE (q: Paper {s_title: $ref_s_title}) "
+            "MERGE (p)-[:REFERENCES]->(q)"
+            "RETURN p, q",
+            s_title=sanitize_title(title),
+            ref_s_title=sanitize_title(ref_title),
+            result_transformer_=Result.single
+        )
 
     return result['p']['s_title'], result['q']['s_title']
 

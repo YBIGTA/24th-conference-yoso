@@ -1,6 +1,7 @@
 import numpy as np
+import json
 from fastapi import FastAPI
-from server.database import vector, document
+from server.database import vector, document, graph
 
 app = FastAPI()
 
@@ -18,6 +19,8 @@ async def search(domain: str, problem: str, solution: str):
     results = [{
         "id": doc["_id"],
         "title": doc["title"].replace("-\n", "").replace("\n", " "),
+        "published_year": doc["published_year"],
+        "keywords": doc["keywords"]
     } for doc in docs]
 
     return {
@@ -25,20 +28,36 @@ async def search(domain: str, problem: str, solution: str):
     }
 
 
-@app.get("/similarity")
-async def similarity(domain: str, problem: str, solution: str, k: int):
-    ids = [
-        "59b63f10-57e0-4f1d-a013-32c141e196cd",
-        "d31b2761-7b9f-44c5-9df3-51d5c612296d",
-        "d18dfbc2-9125-461a-9951-fa844a19e91c",
-        "464956be-8b26-4fc2-a974-e33b37e23d19",
-    ]
+@app.get("/reset")
+def hard_reset_database():
+    try:
+        with open("server/merged.json", "r") as file:
+            data = json.load(file)
+            for elem in data:
+                # MongoDB
+                document.create_document(**elem)
 
-    query = vector.create_embedding(domain, problem, solution)
-    targets = vector.fetch_all_by_id(ids)
+                # Vector
+                # vector.create_vector(
+                #     id=elem["id"],
+                #     domain=elem["summary"]["domain"],
+                #     problem=elem["summary"]["problem"],
+                #     solution=elem["summary"]["solution"]
+                # )
 
-    result = vector.rank_by_similarity(query, targets, k)
+                # Graph
+                # graph.create_node(
+                #     # driver=driver, 
+                #     id=elem["id"],
+                #     title=elem["title"]
+                # )
 
-    return {
-        "result": result
-    }
+                # for ref_title in elem["reference"]:
+                #     graph.create_relationship(
+                #         # driver=driver,
+                #         title=elem["title"],
+                #         ref_title=ref_title
+                #     )
+        return "Success"
+    except Exception as e:
+        return f"Failed: {e}"
