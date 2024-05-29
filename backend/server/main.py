@@ -2,6 +2,7 @@ import numpy as np
 import json
 from fastapi import FastAPI
 from server.database import vector, document, graph
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -11,9 +12,23 @@ def read_root():
     return "pong"
 
 
-@app.get("/search")
-async def search(domain: str, problem: str, solution: str):
-    doc_ids = vector.search_by_sentence(domain, problem, solution, 5)
+class SearchBody(BaseModel):
+    domain: str
+    problem: str
+    solution: str
+
+
+@app.post("/search", summary="핵심 페이퍼 도출")
+async def search(body: SearchBody):
+    # Retrieve top 5 relevant paper ids
+    doc_ids = vector.search_by_sentence(
+        domain=body.domain, 
+        problem=body.problem,
+        solution=body.solution, 
+        k=5
+    )
+
+    # Fetch title, year, keywords from document database
     docs = [document.search_by_id(id) for id in doc_ids]
     
     results = [{
@@ -23,9 +38,7 @@ async def search(domain: str, problem: str, solution: str):
         "keywords": doc["keywords"]
     } for doc in docs]
 
-    return {
-        "results": results
-    }
+    return results
 
 
 @app.get("/reset")

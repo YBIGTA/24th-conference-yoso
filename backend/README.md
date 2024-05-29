@@ -10,10 +10,10 @@
 
 ### 도커 컨테이너 실행
 ```bash
-docker compose up --build server
+docker compose up --build server graph
 ```
 
-### REST API 호출
+### 실행 테스트
 ```bash
-GET localhost/search?domain=<도메인>&problem=<문제>&solution=<해결방안>
+GET http://localhost/ping
 ```
