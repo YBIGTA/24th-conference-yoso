@@ -1,0 +1,7 @@
+.landing {
+    display: flex;
+    flex-direction: column; /* 수직 방향으로 정렬 */
+    align-items: center; /* 수평 중앙 정렬 */
+    margin-top: 4vh;
+    width: 100%;
+}

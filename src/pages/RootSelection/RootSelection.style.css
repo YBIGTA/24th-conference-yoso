@@ -1,0 +1,183 @@
+.root-selection {
+    font-family: 'Noto Sans', sans-serif;
+    display: flex;
+    flex-direction: column; /* 수직 방향으로 정렬 */
+    align-items: center; /* 수평 중앙 정렬 */
+    margin-top: 4vh;
+    width: 100%;
+    box-sizing: border-box; /* 패딩과 보더를 전체 너비에 포함 */
+}
+
+.head {
+    display: flex;
+}
+
+
+.character {
+    max-width: 40px;
+    height: 40px;
+    margin-right: 1.5vh;
+    margin-top: -0.7vh;
+}
+
+.question{
+    margin-top:0.8vh;
+    margin-left:0.6vh;
+    margin-bottom: -10px;
+    font-size:20px;
+    color:#699BF7 !important;
+    background-color : rgba(105,155,247,0.25) !important;
+    border-radius:10px;
+}
+
+.root-selection h2 {
+    font-size: 24px;
+    margin-bottom: 16px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.root-selection p {
+    font-size: 16px;
+    margin-top: -4px;
+    margin-bottom: 24px;
+    text-align: center;
+    color:#194185;
+    font-family: 'Noto Sans KR', sans-serif;
+}
+
+.default-sort {
+    align-self: flex-end;
+    padding-right: calc(10% + 30px); 
+    font-size: 12px;
+    margin-top:-1vh;
+    margin-bottom: 8px;
+    font-weight:600;
+}
+
+.default-sort .ant-tag {
+    margin-right: 2px; 
+}
+
+.table {
+    width: 80%; 
+    margin: 0 auto; 
+    max-height: 400px;
+    overflow-y: auto;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.ant-table-thead > tr > th {
+    background-color: #f0f0f0 !important; 
+    color: #000000 !important; 
+    position: sticky !important;
+    top:0 !important;
+    z-index:1;
+}
+
+.ant-table-thead > tr > th::after {
+    content: "";
+    position: absolute;
+    top: 50%; 
+    right: 0;
+    height: 50%; 
+    width: 1px; 
+    background-color: #e0e0e0; 
+    transform: translateY(-50%); 
+}
+
+.ant-table-thead > tr > th:last-child::after {
+    display: none; 
+}
+
+.ant-table-tbody > tr:hover > td {
+    background: none !important;
+}
+
+
+.keyword-container {
+    display: flex;
+    align-items: center;
+}
+
+.keyword {
+    background-color: #D1FADF;
+    color: #43BA7F;
+    padding: 2px 8px;
+    border-radius: 4px;
+    border-color:#43BA7F;
+    margin-right: 8px;
+    font-size:14px;
+}
+
+.circle-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border: 1px solid #43BA7F;
+    border-radius: 50%;
+    background-color: white;
+    color: #43BA7F;
+}
+
+.tooltip-content {
+    font-size: 11px;
+}
+
+.tooltip {
+    background-color: rgba(16, 42, 86, 0.91); /* 배경색 */
+    color: #fff; /* 텍스트 색상 */
+}
+
+.author {
+    color: black;
+}
+
+
+.selected-row {
+    background-color: rgba(224, 242, 254, 0.74) !important; 
+}
+
+.generate-button-container {
+    display: flex;
+    justify-content: flex-end; 
+    margin-top: 30px; 
+    width: 100%;
+    padding-right: calc(10% + 3px); 
+}
+
+.generate-button {
+    background-color: #1A67F8;
+    color: white;
+    border: none;
+    border-radius:12px;
+    width: 10%;
+    padding: 8px 16px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.generate-button:disabled {
+    background-color: rgba(224, 242, 254, 0.74);
+    color:rgba(0,107,187,0.28);
+    cursor: not-allowed;
+}
+
+.expanded-keywords {
+    padding-left: 32px;
+    font-size: 14px;
+}
+
+.expanded-keywords span{
+    color: #194185;
+    font-weight: bold;
+}
+
+@media (max-width: 1600px) {
+    .generate-button {
+        width: auto; /* 작은 화면에서는 버튼 너비 자동 조정 */
+        padding: 8px 12px;
+    }
+}
