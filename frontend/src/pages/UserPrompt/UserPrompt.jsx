@@ -51,14 +51,15 @@ const UserPrompt = () => {
       if (current === steps.length - 1) {
         console.log('User Input:', Input);
         try {
-          const response = await axios.get('http://localhost/search', {
+          const response = await axios.get('/search', {
             params: {
               domain: Input.domain,
               problem: Input.problem,
               solution: Input.solution
-            }
+            },
           });
-          navigate('/root', { state: { data: response.data } });
+          console.log('response', response.data)
+          navigate('/root', { state: { data: response.data.results } });
         } catch (error) {
           console.error('Error:', error);
         }

@@ -30,6 +30,11 @@
     border-radius:10px;
 }
 
+.question svg {
+    font-size: 20px; /* 아이콘 크기 조정 */
+    margin: 0; /* 마진 제거 */
+}
+
 .root-selection h2 {
     font-size: 24px;
     margin-bottom: 16px;
@@ -45,6 +50,7 @@
     color:#194185;
     font-family: 'Noto Sans KR', sans-serif;
 }
+
 
 .default-sort {
     align-self: flex-end;
@@ -73,6 +79,17 @@
     position: sticky !important;
     top:0 !important;
     z-index:1;
+}
+
+
+.ant-table-column-sorter-inner {
+    display:flex;
+    flex-direction:column;
+    gap: 6px !important;
+}
+
+.ant-table-column-sorter-inner:first-child {
+    margin-top:1vh;
 }
 
 .ant-table-thead > tr > th::after {
@@ -121,6 +138,12 @@
     background-color: white;
     color: #43BA7F;
 }
+
+.circle-button svg {
+    font-size: 12px; /* 아이콘 크기 조정 */
+    margin: 0; /* 마진 제거 */
+}
+
 
 .tooltip-content {
     font-size: 11px;

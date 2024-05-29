@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Table, Tag, Tooltip } from 'antd';
 import { MinusOutlined, PlusOutlined, RadarChartOutlined, QuestionCircleOutlined } from '@ant-design/icons';
@@ -7,26 +7,35 @@ import './RootSelection.style.css';
 
 const RootSelection = () => {
   const location = useLocation();
-  const initialData = location.state?.data || [];
-  const [data, setData] = useState(initialData);
+  const initialData = Array.isArray(location.state?.data) ? location.state.data : [];
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [expandedKeys, setExpandedKeys] = useState([]);
 
-  //response 처리//
-  useEffect(() => {
-    if (initialData.length >0) {
-      const formattedData = initialData.map((item) => ({
-        key: item.id,
-        title: item.title,
-        authors: item.authors,
-        keywords: item.keywords,
-        citation: 100,
-        year: item.year,
-    }));
+  // 랜덤 값을 선택하는 함수 - 논모정 db까지 연결 시 삭제 예정 
+  const getRandomValue = (values) => {
+    return values[Math.floor(Math.random() * values.length)];
+  };
 
+  // initialData를 메모이제이션
+  const formattedData = useMemo(() => {
+    const citationCandidates = [50, 75, 100, 125, 150];
+    const yearCandidates = [2000, 2005, 2010, 2015, 2020];
+
+    return initialData.map((item, index) => ({
+      key: item.id, // item.id를 고유한 키 값으로 사용
+      title: item.title,
+      authors: item.authors || ['Yiheng Xu', 'James', 'Sophie', 'John', 'Doe', 'Jane'],
+      keywords: item.keywords || ['Convolution-based', 'Transformer-based', 'Overfitting', 'Computer Vision'],
+      citation: item.citation || getRandomValue(citationCandidates),
+      year: item.year || getRandomValue(yearCandidates),
+    }));
+  }, [initialData]);
+
+  const [data, setData] = useState(formattedData);
+
+  useEffect(() => {
     setData(formattedData);
-  }
-}, [initialData]);
+  }, [formattedData]);
 
   const onSelectChange = (selectedKey) => {
     setSelectedRowKeys([selectedKey]);
@@ -112,7 +121,7 @@ const RootSelection = () => {
       key: 'year',
       width: '15%',
       sorter: {
-        compare: (a, b) => a.year - b.year,
+        compare: (a, b) => a.year - b.year
       },
     },
   ];
@@ -168,7 +177,7 @@ const RootSelection = () => {
             expandIcon: ({ expanded, onExpand, record }) => (
               <span />
             ),
-            expandIconColumnIndex: -1, /* 확장 아이콘 열을 제거 */
+            expandIconColumnIndex: -1, 
           }}
           onRow={(record) => ({
             onClick: () => onSelectChange(record.key),
