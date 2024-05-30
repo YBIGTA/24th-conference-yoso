@@ -45,13 +45,15 @@ async def construct_graph(
     root_id: Annotated[str, Body()], 
     query: SearchBody
 ):
-    
+    # Fetch ids of adjacent nodes
     references = graph.match_referencing_nodes(root_id)
     citations = graph.match_referenced_nodes(root_id)
 
+    # Fetch embeddings of adjacent nodes
     ref_vecs = vector.fetch_all_by_id(references) if references else []
     cit_vecs = vector.fetch_all_by_id(citations) if citations else []
 
+    # Rank by similarity score from dps query
     query_vector = vector.create_embedding(**query.model_dump())
     ref_scores = vector.rank_by_similarity(
         src=query_vector,
@@ -65,5 +67,6 @@ async def construct_graph(
     return [{
         "id": doc["_id"],
         "title": doc["title"].replace("-\n", "").replace("\n", " "),
+        "impact": doc["impact"],
         "score": scores_of[doc["_id"]]
     } for doc in docs]
