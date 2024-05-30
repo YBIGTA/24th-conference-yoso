@@ -3,8 +3,13 @@ import json
 from fastapi import FastAPI
 from server.database import vector, document, graph
 from pydantic import BaseModel
+from .routers import search
 
 app = FastAPI()
+app.include_router(
+    router=search.router,
+    prefix="/api/v1"
+)
 
 
 @app.get("/ping")
