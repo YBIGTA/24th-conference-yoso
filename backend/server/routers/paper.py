@@ -34,5 +34,5 @@ async def create_paper(
         graph.create_relationship(driver, body.title, ref_title)
 
     return {
-        'statusCode': 200,
+        "created_id": body.id
     }

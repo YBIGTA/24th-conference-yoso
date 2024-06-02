@@ -6,10 +6,27 @@ from typing import Annotated
 from ..database import vector, document, graph
 
 
-class SearchBody(BaseModel):
+class SearchCoreBody(BaseModel):
     domain: str
     problem: str
     solution: str
+
+
+class SearchCoreResponse(BaseModel):
+    id: str
+    title: str
+    published_year: str
+    keywords: list[str]
+    citations: int
+
+
+class SearchGraphResponse(BaseModel):
+    id: str
+    title: str
+    published_year: str
+    keywords: list[str]
+    citations: int
+    score: float
 
 
 router = APIRouter(
@@ -18,9 +35,13 @@ router = APIRouter(
 )
 
 
-@router.post("/core", summary="핵심 페이퍼 도출")
+@router.post(
+    path="/core", 
+    summary="핵심 페이퍼 도출", 
+    response_model=list[SearchCoreResponse]
+)
 async def retrieve_core_papers(
-    body: SearchBody,
+    body: SearchCoreBody,
     collection: Annotated[Collection, Depends(document.get_mongo_collection)]
 ):
     # Retrieve top 5 relevant paper ids
@@ -45,11 +66,15 @@ async def retrieve_core_papers(
     return results
 
 
-@router.post("/graph", summary="루트 노드 기반 그래프 구성")
+@router.post(
+    path="/graph", 
+    summary="루트 노드 기반 그래프 구성", 
+    response_model=list[SearchGraphResponse]
+)
 async def construct_graph(
     num_nodes: Annotated[int, Body()],
     root_id: Annotated[str, Body()], 
-    query: SearchBody,
+    query: SearchCoreBody,
     driver: Annotated[Driver, Depends(graph.get_graph_db)],
     collection: Annotated[Collection, Depends(document.get_mongo_collection)]
 ):
