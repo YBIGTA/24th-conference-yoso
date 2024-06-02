@@ -14,7 +14,12 @@ class Development(BaseSettings):
     # MongoDB
     MONGODB_URI: str = os.getenv("MONGODB_URI")
     MONGODB_DATABASE: str = os.getenv("MONGODB_DATABASE")
-    MONGODB_COLLECTION: str = os.getenv("MONGODB_COLLECTION")
+    MONGODB_COLLECTION: str = 'documents'
+
+    # Neo4j
+    NEO4J_URI: str = 'neo4j://localhost:7687'
+    NEO4J_AUTH_USER: str = os.getenv("NEO4J_AUTH_USER")
+    NEO4J_AUTH_PASSWORD: str = os.getenv("NEO4J_AUTH_PASSWORD")
     
 
 class Deployment(BaseSettings):
@@ -28,5 +33,10 @@ class Deployment(BaseSettings):
     MONGODB_DATABASE: str
     MONGODB_COLLECTION: str
 
+    # Neo4j
+    NEO4J_URI: str
+    NEO4J_AUTH_USER: str
+    NEO4J_AUTH_PASSWORD: str
 
-settings = Deployment()
+
+settings = Development()

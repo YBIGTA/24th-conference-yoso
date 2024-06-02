@@ -15,5 +15,12 @@ docker compose up --build server graph
 
 ### 실행 테스트
 ```bash
-GET http://localhost/ping
+curl -X 'GET' \
+  'http://localhost/ping' \
+  -H 'accept: application/json'
+```
+
+### 프로토타입 데이터로 DB 초기화
+```bash
+python initialize.py
 ```

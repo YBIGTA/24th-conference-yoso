@@ -1,13 +1,32 @@
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, Depends
+from neo4j import Driver
+from pymongo.collection import Collection
 from pydantic import BaseModel
 from typing import Annotated
 from ..database import vector, document, graph
 
 
-class SearchBody(BaseModel):
+class SearchCoreBody(BaseModel):
     domain: str
     problem: str
     solution: str
+
+
+class SearchCoreResponse(BaseModel):
+    id: str
+    title: str
+    published_year: str
+    keywords: list[str]
+    citations: int
+
+
+class SearchGraphResponse(BaseModel):
+    id: str
+    title: str
+    published_year: str
+    keywords: list[str]
+    citations: int
+    score: float
 
 
 router = APIRouter(
@@ -16,8 +35,15 @@ router = APIRouter(
 )
 
 
-@router.post("/core", summary="핵심 페이퍼 도출")
-async def retrieve_core_papers(body: SearchBody):
+@router.post(
+    path="/core", 
+    summary="핵심 페이퍼 도출", 
+    response_model=list[SearchCoreResponse]
+)
+async def retrieve_core_papers(
+    body: SearchCoreBody,
+    collection: Annotated[Collection, Depends(document.get_mongo_collection)]
+):
     # Retrieve top 5 relevant paper ids
     doc_ids = vector.search_by_sentence(
         domain=body.domain, 
@@ -27,27 +53,34 @@ async def retrieve_core_papers(body: SearchBody):
     )
 
     # Fetch title, year, keywords from document database
-    docs = [document.search_by_id(id) for id in doc_ids]
+    docs = [document.search_by_id(collection, id) for id in doc_ids]
     
     results = [{
-        "id": doc["_id"],
-        "title": doc["title"].replace("-\n", "").replace("\n", " "),
-        "published_year": doc["published_year"],
-        "keywords": doc["keywords"]
+        "id": doc.id,
+        "title": doc.title.replace("-\n", "").replace("\n", " "),
+        "published_year": doc.published_year,
+        "keywords": doc.summary.keywords,
+        "citations": doc.impact
     } for doc in docs]
 
     return results
 
 
-@router.post("/graph", summary="루트 노드 기반 그래프 구성")
+@router.post(
+    path="/graph", 
+    summary="루트 노드 기반 그래프 구성", 
+    response_model=list[SearchGraphResponse]
+)
 async def construct_graph(
     num_nodes: Annotated[int, Body()],
     root_id: Annotated[str, Body()], 
-    query: SearchBody
+    query: SearchCoreBody,
+    driver: Annotated[Driver, Depends(graph.get_graph_db)],
+    collection: Annotated[Collection, Depends(document.get_mongo_collection)]
 ):
     # Fetch ids of adjacent nodes
-    references = graph.match_referencing_nodes(root_id)
-    citations = graph.match_referenced_nodes(root_id)
+    references = graph.match_referencing_nodes(driver, root_id)
+    citations = graph.match_referenced_nodes(driver, root_id)
 
     # Fetch embeddings of adjacent nodes
     ref_vecs = vector.fetch_all_by_id(references) if references else []
@@ -62,11 +95,13 @@ async def construct_graph(
     )
     scores_of = {elem["id"]: elem["score"] for elem in ref_scores}
 
-    docs = [document.search_by_id(id) for id in scores_of.keys()]
+    docs = [document.search_by_id(collection, id) for id in scores_of.keys()]
 
     return [{
-        "id": doc["_id"],
-        "title": doc["title"].replace("-\n", "").replace("\n", " "),
-        "impact": doc["impact"],
-        "score": scores_of[doc["_id"]]
+        "id": doc.id,
+        "published_year": doc.published_year,
+        "title": doc.title.replace("-\n", "").replace("\n", " "),
+        "citations": doc.impact,
+        "score": scores_of[doc.id],
+        "keywords": doc.summary.keywords
     } for doc in docs]

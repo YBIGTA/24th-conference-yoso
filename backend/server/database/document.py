@@ -1,5 +1,7 @@
 from server.core.config import settings
 from pymongo.mongo_client import MongoClient
+from pymongo.collection import Collection
+from pymongo.errors import DuplicateKeyError
 from pymongo.server_api import ServerApi
 from pymongo.results import InsertOneResult
 from pydantic import BaseModel, ValidationError
@@ -8,11 +10,6 @@ MONGODB_URI = settings.MONGODB_URI
 MONGODB_DATABASE = settings.MONGODB_DATABASE
 MONGODB_COLLECTION = settings.MONGODB_COLLECTION
 
-# MongoDB client
-client = MongoClient(MONGODB_URI, server_api=ServerApi("1"))
-database = client[MONGODB_DATABASE]
-collection = database[MONGODB_COLLECTION]
-
 
 class Body(BaseModel):
     paragraph_id: int
@@ -20,59 +17,95 @@ class Body(BaseModel):
     text: str
 
 
+class Figure(BaseModel):
+    idx: int
+    name: str
+    caption: str
+    related: list[int]
+    summary: str
+
+
+class Summary(BaseModel):
+    domain: str
+    problem: str
+    solution: str
+    keywords: list[str]
+
+
 class Document(BaseModel):
     id: str
     abstract: str
     body: list[Body]
-    impact: int
-    keywords: list[str]
-    published_year: str | None
+    impact: int = 0
+    summary: Summary
+    published_year: str | None = None
     reference: list[str]
+    figures: list[Figure] = []
+    tables: list[Figure] = []
     title: str
 
 
+async def get_mongo_collection():
+    client = MongoClient(MONGODB_URI, server_api=ServerApi("1"))
+    database = client[MONGODB_DATABASE]
+    collection = database[MONGODB_COLLECTION]
+
+    try:
+        yield collection
+    finally:
+        client.close()
+
+
 def search_by_id(
+    collection: Collection,
     id: str
-) -> dict:
+) -> Document:
     """Fetches a document by ID.
     
     Fetch a single document with given ID from database.
 
     Args:
-        id: ID of the document to fetch.
+        collection: `pymongo.collection.Collection` to perform operations.
+        id: id of the document to fetch.
     
     Returns:
-        A dict representing corresponding document.
+        A `Document` object representing corresponding document.
     """
-    docs = collection.find_one({ "_id": id })
+    document = collection.find_one({ "_id": id })
+    document["id"] = document.pop("_id")
 
-    return docs
+    return Document(**document)
 
 
 def create_document(
-    **kwargs
+    collection: Collection,
+    document: Document
 ) -> str:
-    """Creates a document.
+    """Upserts a document.
     
-    Creates a document with given keyword arguments.
+    Updates a document using data from `document`. If no document exists with 
+    given id, create one.
 
     Args:
-        **kwargs: Fields for documents. Must satisfy the schema `Document`.
+        collection: `pymongo.collection.Collection` to perform operations.
+        document: Fields for documents. Must satisfy the schema `Document`.
 
     Returns:
-        String ID value of the created document.
+        String id value of the upserted document.
 
     Raises:
-        ValidationError
+        ValidationError: Arguments do not match the schema.
     """
     try:
-        kwargs["keywords"] = kwargs.pop("summary")["keywords"]
-        doc = Document(**kwargs).model_dump()
-        doc["_id"] = doc.pop("id")
+        document = document.model_dump()
+        document["_id"] = document.pop("id")
         
-        result = collection.insert_one(doc)
+        result = collection.update_one(
+            filter={ "_id": document["_id"] },
+            update={ "$set": document },
+            upsert=True
+        )
         
-        return result.inserted_id
+        return result.upserted_id
     except ValidationError as e:
         raise e
-
