@@ -1,5 +1,6 @@
 from server.core.config import settings
 from pymongo.mongo_client import MongoClient
+from pymongo.errors import DuplicateKeyError
 from pymongo.server_api import ServerApi
 from pymongo.results import InsertOneResult
 from pydantic import BaseModel, ValidationError
@@ -20,14 +21,31 @@ class Body(BaseModel):
     text: str
 
 
+class Figure(BaseModel):
+    idx: int
+    name: str
+    caption: str
+    related: list[int]
+    summary: str
+
+
+class Summary(BaseModel):
+    domain: str
+    problem: str
+    solution: str
+    keywords: list[str]
+
+
 class Document(BaseModel):
     id: str
     abstract: str
     body: list[Body]
-    impact: int
-    keywords: list[str]
-    published_year: str | None
+    impact: int = 0
+    summary: Summary
+    published_year: str | None = None
     reference: list[str]
+    figures: list[Figure] = []
+    tables: list[Figure] = []
     title: str
 
 
@@ -50,29 +68,33 @@ def search_by_id(
 
 
 def create_document(
-    **kwargs
+    document: Document
 ) -> str:
-    """Creates a document.
+    """Upserts a document.
     
-    Creates a document with given keyword arguments.
+    Updates a document using data from `document`. If no document exists with 
+    given id, create one.
 
     Args:
-        **kwargs: Fields for documents. Must satisfy the schema `Document`.
+        document: Fields for documents. Must satisfy the schema `Document`.
 
     Returns:
-        String ID value of the created document.
+        String ID value of the upserted document.
 
     Raises:
-        ValidationError
+        ValidationError: Arguments do not match the schema.
     """
     try:
-        kwargs["keywords"] = kwargs.pop("summary")["keywords"]
-        doc = Document(**kwargs).model_dump()
-        doc["_id"] = doc.pop("id")
+        document = document.model_dump()
+        document["_id"] = document.pop("id")
         
-        result = collection.insert_one(doc)
+        # result = collection.insert_one(document)
+        result = collection.update_one(
+            filter={ "_id": document["_id"] },
+            update={ "$set": document },
+            upsert=True
+        )
         
-        return result.inserted_id
+        return result.upserted_id
     except ValidationError as e:
         raise e
-
