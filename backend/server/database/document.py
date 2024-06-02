@@ -1,5 +1,6 @@
 from server.core.config import settings
 from pymongo.mongo_client import MongoClient
+from pymongo.collection import Collection
 from pymongo.errors import DuplicateKeyError
 from pymongo.server_api import ServerApi
 from pymongo.results import InsertOneResult
@@ -8,11 +9,6 @@ from pydantic import BaseModel, ValidationError
 MONGODB_URI = settings.MONGODB_URI
 MONGODB_DATABASE = settings.MONGODB_DATABASE
 MONGODB_COLLECTION = settings.MONGODB_COLLECTION
-
-# MongoDB client
-client = MongoClient(MONGODB_URI, server_api=ServerApi("1"))
-database = client[MONGODB_DATABASE]
-collection = database[MONGODB_COLLECTION]
 
 
 class Body(BaseModel):
@@ -49,25 +45,40 @@ class Document(BaseModel):
     title: str
 
 
+async def get_mongo_collection():
+    client = MongoClient(MONGODB_URI, server_api=ServerApi("1"))
+    database = client[MONGODB_DATABASE]
+    collection = database[MONGODB_COLLECTION]
+
+    try:
+        yield collection
+    finally:
+        client.close()
+
+
 def search_by_id(
+    collection: Collection,
     id: str
-) -> dict:
+) -> Document:
     """Fetches a document by ID.
     
     Fetch a single document with given ID from database.
 
     Args:
-        id: ID of the document to fetch.
+        collection: `pymongo.collection.Collection` to perform operations.
+        id: id of the document to fetch.
     
     Returns:
-        A dict representing corresponding document.
+        A `Document` object representing corresponding document.
     """
-    docs = collection.find_one({ "_id": id })
+    document = collection.find_one({ "_id": id })
+    document["id"] = document.pop("_id")
 
-    return docs
+    return Document(**document)
 
 
 def create_document(
+    collection: Collection,
     document: Document
 ) -> str:
     """Upserts a document.
@@ -76,10 +87,11 @@ def create_document(
     given id, create one.
 
     Args:
+        collection: `pymongo.collection.Collection` to perform operations.
         document: Fields for documents. Must satisfy the schema `Document`.
 
     Returns:
-        String ID value of the upserted document.
+        String id value of the upserted document.
 
     Raises:
         ValidationError: Arguments do not match the schema.
@@ -88,7 +100,6 @@ def create_document(
         document = document.model_dump()
         document["_id"] = document.pop("id")
         
-        # result = collection.insert_one(document)
         result = collection.update_one(
             filter={ "_id": document["_id"] },
             update={ "$set": document },

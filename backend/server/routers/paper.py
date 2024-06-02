@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from typing import Annotated
 from neo4j import Driver
+from pymongo.collection import Collection
 from ..database import document, vector, graph
 
 
@@ -13,10 +14,11 @@ router = APIRouter(
 @router.post("/create", summary="새 논문 생성")
 async def create_paper(
     body: document.Document,
-    driver: Annotated[Driver, Depends(graph.get_graph_db)]
+    driver: Annotated[Driver, Depends(graph.get_graph_db)],
+    collection: Annotated[Collection, Depends(document.get_mongo_collection)]
 ):
     # Insert into document database
-    document.create_document(body)
+    document.create_document(collection, body)
     
     # Insert into vector store
     vector.create_vector(
