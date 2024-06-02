@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, Depends
+from neo4j import Driver
 from pydantic import BaseModel
 from typing import Annotated
 from ..database import vector, document, graph
@@ -43,11 +44,12 @@ async def retrieve_core_papers(body: SearchBody):
 async def construct_graph(
     num_nodes: Annotated[int, Body()],
     root_id: Annotated[str, Body()], 
-    query: SearchBody
+    query: SearchBody,
+    driver: Annotated[Driver, Depends(graph.get_graph_db)]
 ):
     # Fetch ids of adjacent nodes
-    references = graph.match_referencing_nodes(root_id)
-    citations = graph.match_referenced_nodes(root_id)
+    references = graph.match_referencing_nodes(driver, root_id)
+    citations = graph.match_referenced_nodes(driver, root_id)
 
     # Fetch embeddings of adjacent nodes
     ref_vecs = vector.fetch_all_by_id(references) if references else []
