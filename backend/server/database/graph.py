@@ -1,9 +1,10 @@
 import os
 from neo4j import Driver, Result, GraphDatabase
 from pydantic import BaseModel, ValidationError
+from server.core.config import settings
 
-URI = os.getenv("NEO4J_URI")
-AUTH = (os.getenv("NEO4J_AUTH_USER"), os.getenv("NEO4J_AUTH_PASSWORD"))
+URI = settings.NEO4J_URI
+AUTH = (settings.NEO4J_AUTH_USER, settings.NEO4J_AUTH_PASSWORD)
 
 
 class Paper(BaseModel):
