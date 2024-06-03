@@ -1,14 +1,13 @@
-import numpy as np
-import json
 from fastapi import FastAPI
-from server.database import vector, document, graph
-from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 from .routers import search, paper
 
 app = FastAPI(
     title="YOSO API Documentation",
     version="0.2.0"
 )
+
+# Routers
 app.include_router(
     router=search.router,
     prefix="/api/v1"
@@ -16,6 +15,19 @@ app.include_router(
 app.include_router(
     router=paper.router,
     prefix="/api/v1"
+)
+
+# Middlewares
+origins = [
+    # Future: Only allows deployed frontend web server
+    "*"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
