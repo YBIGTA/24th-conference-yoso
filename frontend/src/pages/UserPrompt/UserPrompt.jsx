@@ -5,6 +5,7 @@ import { Steps, Button } from 'antd';
 import { ArrowLeftOutlined, ArrowRightOutlined, RadarChartOutlined } from '@ant-design/icons';
 import './UserPrompt.style.css';
 import Domain from './ResearchDomain';
+import { request } from '../../common/axiosInstance';
 
 const UserPrompt = () => {
 
@@ -51,13 +52,19 @@ const UserPrompt = () => {
       if (current === steps.length - 1) {
         console.log('User Input:', Input);
         try {
-          const response = await axios.get('/search', {
-            params: {
-              domain: Input.domain,
-              problem: Input.problem,
-              solution: Input.solution
-            },
+          // const response = await axios.get('/search', {
+          //   params: {
+          //     domain: Input.domain,
+          //     problem: Input.problem,
+          //     solution: Input.solution
+          //   },
+          // });
+          const response = await request.post('/api/v1/search/core', {
+            domain: Input.domain,
+            problem: Input.problem,
+            solution: Input.solution,
           });
+          
           console.log('response', response.data)
           navigate('/root', { state: { data: response.data.results } });
         } catch (error) {
