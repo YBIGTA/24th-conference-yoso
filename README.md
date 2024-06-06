@@ -1,9 +1,25 @@
-# (프로젝트 명)
+# You Only Search Once
 
 <div align="center">
-<h3>24-1 YBIGTA 컨퍼런스</h3>
 
-<em>(프로젝트에 대한 간략한 소개)</em>
+<img src="assets/logo.png" alt="YOSO logo" width="60%" />
+<h3>24-1 YBIGTA x LETSUR 산학 협력 프로젝트</h3>
+
+<p>논문의 다양한 메타정보를 추출하고 이를 기반으로 논문 작성을 보조하는 서비스</p>
+
+<br />
+
+<img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=React&logoColor=white">
+<img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=FastAPI&logoColor=white">
+<img src="https://img.shields.io/badge/Pinecone-000000?style=for-the-badge">
+<img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=MongoDB&logoColor=white">
+<img src="https://img.shields.io/badge/Neo4j-4581C3?style=for-the-badge&logo=Neo4j&logoColor=white">
+
+<img src="https://img.shields.io/badge/HuggingFace-FFD21E?style=for-the-badge&logo=HuggingFace&logoColor=white">
+<img src="https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=PyTorch&logoColor=white">
+<img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=Docker&logoColor=white">
+<img src="https://img.shields.io/badge/AWS ECS-FF9900?style=for-the-badge&logo=Amazon ECS&logoColor=white">
+<img src="https://img.shields.io/badge/AWS S3-569A31?style=for-the-badge&logo=Amazon S3&logoColor=white">
 
 </div>
 
@@ -53,8 +69,10 @@
 
 |이름|팀|역할|
 |-|-|-|
-|(팀장)|DS|(역할)|
-|(팀원)|DS|(역할)|
-|(팀원)|DE|(역할)|
-|(팀원)|DE|(역할)|
-|(팀원)|DA|(역할)|
+|**[정경윤](https://github.com/jkyoon2)**|DS|(역할)|
+|**[고준영](https://github.com/Seunim)**|DE|(역할)|
+|**[김무현](https://github.com/MooJuice8)**|DS|(역할)|
+|**[박정양](https://github.com/wjddid000624)**|DS|(역할)|
+|**[유지민](https://github.com/yxxjimin)**|DE|(역할)|
+|**[임세은](https://github.com/im-seni)**|DA|(역할)|
+|**[정회수](https://github.com/Hoesu)**|DS|(역할)|
