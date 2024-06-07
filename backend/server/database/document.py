@@ -56,7 +56,7 @@ async def get_mongo_collection():
         client.close()
 
 
-def search_by_id(
+def fetch_by_id(
     collection: Collection,
     id: str
 ) -> Document:
