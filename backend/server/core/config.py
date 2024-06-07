@@ -39,4 +39,4 @@ class Deployment(BaseSettings):
     NEO4J_AUTH_PASSWORD: str
 
 
-settings = Development()
+settings = Deployment()

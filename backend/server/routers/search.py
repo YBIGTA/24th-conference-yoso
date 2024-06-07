@@ -29,6 +29,13 @@ class SearchGraphResponse(BaseModel):
     score: float
 
 
+class SearchSummaryResponse(BaseModel):
+    idx: int
+    name: str
+    caption: str
+    summary: str
+
+
 router = APIRouter(
     prefix="/search",
     tags=["Search Papers"]
@@ -53,7 +60,7 @@ async def retrieve_core_papers(
     )
 
     # Fetch title, year, keywords from document database
-    docs = [document.search_by_id(collection, id) for id in doc_ids]
+    docs = [document.fetch_by_id(collection, id) for id in doc_ids]
     
     results = [{
         "id": doc.id,
@@ -95,7 +102,7 @@ async def construct_graph(
     )
     scores_of = {elem["id"]: elem["score"] for elem in ref_scores}
 
-    docs = [document.search_by_id(collection, id) for id in scores_of.keys()]
+    docs = [document.fetch_by_id(collection, id) for id in scores_of.keys()]
 
     return [{
         "id": doc.id,
@@ -105,3 +112,24 @@ async def construct_graph(
         "score": scores_of[doc.id],
         "keywords": doc.summary.keywords
     } for doc in docs]
+
+
+@router.get(
+    path="/summary/{paper_id}",
+    summary="특정 논문의 요약 정보 반환",
+    response_model=list[SearchSummaryResponse]
+)
+async def fetch_summary(
+    paper_id: str,
+    collection: Annotated[Collection, Depends(document.get_mongo_collection)]
+):
+    # Fetch document from id
+    doc = document.fetch_by_id(collection, paper_id)
+
+    return [{
+        "idx": fig.idx,
+        "name": fig.name,
+        "caption": fig.caption,
+        "summary": fig.summary
+    } for fig in doc.figures + doc.tables]
+

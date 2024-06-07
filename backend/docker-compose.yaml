@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: ./server/Dockerfile
-    image: yoso-server
+    image: yxxjimin/yoso-server
     env_file:
       - .env
     ports:
