@@ -4,7 +4,7 @@ from .routers import search, paper
 
 app = FastAPI(
     title="YOSO API Documentation",
-    version="0.3.0"
+    version="0.4.0"
 )
 
 # Routers
