@@ -34,15 +34,15 @@ class Summary(BaseModel):
 
 class Document(BaseModel):
     id: str
-    abstract: str
-    body: list[Body]
-    impact: int = 0
-    summary: Summary
-    published_year: str | None = None
-    reference: list[str]
-    figures: list[Figure] = []
-    tables: list[Figure] = []
-    title: str
+    abstract: str = None
+    body: list[Body] = None
+    impact: int = None
+    summary: Summary = None
+    published_year: str = None
+    reference: list[str] = None
+    figures: list[Figure] = None
+    tables: list[Figure] = None
+    title: str = None
 
 
 async def get_mongo_collection():
@@ -77,7 +77,7 @@ def fetch_by_id(
     return Document(**document)
 
 
-def create_document(
+def upsert_document(
     collection: Collection,
     document: Document
 ) -> str:
@@ -88,7 +88,7 @@ def create_document(
 
     Args:
         collection: `pymongo.collection.Collection` to perform operations.
-        document: Fields for documents. Must satisfy the schema `Document`.
+        document: Fields for documents.
 
     Returns:
         String id value of the upserted document.
@@ -101,8 +101,10 @@ def create_document(
         document["_id"] = document.pop("id")
         
         result = collection.update_one(
-            filter={ "_id": document["_id"] },
-            update={ "$set": document },
+            filter={"_id": document["_id"]},
+            update={"$set": {
+                k: document[k] for k in document if document[k] is not None
+            }},
             upsert=True
         )
         

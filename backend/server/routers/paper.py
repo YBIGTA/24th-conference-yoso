@@ -11,27 +11,32 @@ router = APIRouter(
 )
 
 
-@router.post("/create", summary="새 논문 생성")
-async def create_paper(
+@router.put(
+    path="/create", 
+    summary="새 논문 생성"
+)
+async def upsert_paper(
     body: document.Document,
     driver: Annotated[Driver, Depends(graph.get_graph_db)],
     collection: Annotated[Collection, Depends(document.get_mongo_collection)]
 ):
     # Insert into document database
-    document.create_document(collection, body)
+    document.upsert_document(collection, body)
     
     # Insert into vector store
-    vector.create_vector(
-        id=body.id,
-        domain=body.summary.domain,
-        problem=body.summary.problem,
-        solution=body.summary.solution
-    )
+    if body.summary is not None:
+        vector.create_vector(
+            id=body.id,
+            domain=body.summary.domain,
+            problem=body.summary.problem,
+            solution=body.summary.solution
+        )
     
     # Insert into graph database
-    graph.create_node(driver, body.id, body.title)
-    for ref_title in body.reference:
-        graph.create_relationship(driver, body.title, ref_title)
+    if body.title is not None and body.reference is not None:
+        graph.create_node(driver, body.id, body.title)
+        for ref_title in body.reference:
+            graph.create_relationship(driver, body.title, ref_title)
 
     return {
         "created_id": body.id
