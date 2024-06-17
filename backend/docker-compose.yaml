@@ -12,6 +12,8 @@ services:
       interval: 5s
       timeout: 3s
       retries: 3
+    volumes:
+      - ./db/pgdata:/var/lib/postgresql/data/pgdata
   server:
     build:
       context: .
@@ -21,6 +23,8 @@ services:
         condition: service_healthy
     env_file:
       - .env
+    environment:
+      - POSTGRES_SERVER=postgres
     ports:
       - 80:80
   graph:
@@ -29,5 +33,5 @@ services:
       - 7474:7474
       - 7687:7687
     volumes:
-      - ./neo4j/data:/data
-      - ./neo4j/logs:/logs
+      - ./db/neo4j/data:/data
+      - ./db/neo4j/logs:/logs

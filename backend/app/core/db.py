@@ -6,4 +6,3 @@ from app.models import *
 
 
 engine = create_engine(str(settings.SQLALCHEMY_DATABSE_URI))
-SQLModel.metadata.create_all(engine)
