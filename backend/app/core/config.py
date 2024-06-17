@@ -18,11 +18,11 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
-    POSTGRES_USERNAME: str = "postgres"
-    POSTGRES_PASSWORD: str = "password"
-    POSTGRES_SERVER: str = "localhost"
+    POSTGRES_USERNAME: str
+    POSTGRES_PASSWORD: str
+    POSTGRES_SERVER: str
     POSTGRES_PORT: int = 5432
-    POSTGRES_DB: str = "app"
+    POSTGRES_DB: str
 
     @computed_field
     @property
