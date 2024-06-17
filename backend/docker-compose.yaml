@@ -16,3 +16,12 @@ services:
     volumes:
       - ./neo4j/data:/data
       - ./neo4j/logs:/logs
+  db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=app
+    ports:
+      - 5432:5432
