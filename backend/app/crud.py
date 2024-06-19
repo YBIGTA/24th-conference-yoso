@@ -16,15 +16,15 @@ def create_user(session: Session, user_data: UserRegister) -> User:
     return user
 
 
-def get_user_by_email(session: Session, email: str) -> User | None:
-    stmt = select(User).where(User.email == email)
+def get_user_by_username(session: Session, username: str) -> User | None:
+    stmt = select(User).where(User.username == username)
     user = session.exec(stmt).first()
     return user
 
 
 def authenticate_user(
-        session: Session, email: str, password: str) -> User | None:
-    user = get_user_by_email(session, email)
+        session: Session, username: str, password: str) -> User | None:
+    user = get_user_by_username(session, username)
     if not user:
         return None
     if not verify_password(password, user.hashed_password):

@@ -46,18 +46,16 @@ class TokenPayload(BaseModel):
     exp: int | None = None
 
 
-class User(SQLModel, table=True):
+class UserBase(SQLModel):
+    username: str = Field(unique=True)
+    full_name: str | None = None
+
+
+class User(UserBase, table=True):
     user_id: int | None = Field(default=None, primary_key=True)
-    email: str = Field(unique=True)
     hashed_password: str
-    first_name: str
-    last_name: str
     is_admin: bool = False
 
 
-class UserRegister(BaseModel):
-    email: str
+class UserRegister(UserBase):
     password: str
-    first_name: str
-    last_name: str
-

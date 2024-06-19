@@ -7,8 +7,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from app.api.deps import SessionDep, CurrentUser
 from app.core.security import create_access_token
 from app.core.config import settings
-from app.crud import create_user, get_user_by_email, authenticate_user
-from app.models import User, UserRegister, Token
+from app.crud import create_user, get_user_by_username, authenticate_user
+from app.models import UserBase, UserRegister, Token
 
 
 router = APIRouter()
@@ -27,7 +27,7 @@ def login(
     Authenticate a user and return a JWT access token.
     """
     user = authenticate_user(
-        session, email=form_data.username, password=form_data.password
+        session, username=form_data.username, password=form_data.password
     )
     if not user:
         raise HTTPException(
@@ -49,19 +49,20 @@ def login(
 @router.post(
     path="/register",
     summary="Register user",
+    response_model=UserBase
 )
 def register(
     user_data: UserRegister,
     session: SessionDep,
 ):
     """
-    Register a user with the provided email and password.
+    Register a user with the provided username and password.
     """
-    user = get_user_by_email(session, user_data.email)
+    user = get_user_by_username(session, user_data.username)
     if user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"User with email {user_data.email} already exists.",
+            detail=f"Username {user_data.username} already exists.",
         )
     user = create_user(session, user_data)
 
@@ -71,10 +72,11 @@ def register(
 @router.get(
     path="/me",
     summary="Get current user",
+    response_model=UserBase,
 )
 def get_user_me(
     current_user: CurrentUser
-) -> User | None:
+):
     """
     Get current user.
     """
