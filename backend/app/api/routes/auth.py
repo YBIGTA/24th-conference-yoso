@@ -17,13 +17,15 @@ router = APIRouter()
 @router.post(
     path="/login",
     summary="Get access token",
-    description="Get OAuth2 compatible access token for future requests.",
     response_model=Token
 )
 def login(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     session: SessionDep
 ):
+    """
+    Authenticate a user and return a JWT access token.
+    """
     user = authenticate_user(
         session, email=form_data.username, password=form_data.password
     )
@@ -47,12 +49,14 @@ def login(
 @router.post(
     path="/register",
     summary="Register user",
-    description="Register a user with given email and password.",
 )
 def register(
     user_data: UserRegister,
     session: SessionDep,
 ):
+    """
+    Register a user with the provided email and password.
+    """
     user = get_user_by_email(session, user_data.email)
     if user:
         raise HTTPException(
@@ -67,9 +71,11 @@ def register(
 @router.get(
     path="/me",
     summary="Get current user",
-    description="Get current user",
 )
 def get_user_me(
     current_user: CurrentUser
 ) -> User | None:
+    """
+    Get current user.
+    """
     return current_user
