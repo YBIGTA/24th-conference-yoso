@@ -18,6 +18,9 @@ oauth2_scheme = OAuth2PasswordBearer(
 
 
 def get_db() -> Generator[Session, None, None]:
+    """
+    PostgreSQL session.
+    """
     with Session(engine) as session:
         yield session
 

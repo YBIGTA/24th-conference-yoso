@@ -24,6 +24,10 @@ class Settings(BaseSettings):
     POSTGRES_PORT: int = 5432
     POSTGRES_DB: str
 
+    MONGO_URI: str
+    MONGO_DATABASE: str
+    MONGO_COLLECTION: str
+
     @computed_field
     @property
     def SQLALCHEMY_DATABSE_URI(self) -> PostgresDsn:

@@ -14,6 +14,14 @@ services:
       retries: 3
     volumes:
       - ./db/pgdata:/var/lib/postgresql/data/pgdata
+  neo4j:
+    image: neo4j
+    ports:
+      - 7474:7474
+      - 7687:7687
+    volumes:
+      - ./db/neo4j/data:/data
+      - ./db/neo4j/logs:/logs
   server:
     build:
       context: .
@@ -27,11 +35,3 @@ services:
       - POSTGRES_SERVER=postgres
     ports:
       - 80:80
-  graph:
-    image: neo4j
-    ports:
-      - 7474:7474
-      - 7687:7687
-    volumes:
-      - ./db/neo4j/data:/data
-      - ./db/neo4j/logs:/logs
