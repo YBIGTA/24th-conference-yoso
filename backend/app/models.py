@@ -2,6 +2,15 @@ from sqlmodel import Field, SQLModel
 from pydantic import BaseModel
 
 
+class GraphNodeBase(BaseModel):
+    paper_id: str
+    title: str
+
+
+class GraphNode(GraphNodeBase):
+    s_title: str
+
+
 class PaperBody(BaseModel):
     paragraph_id: int
     section: str
@@ -16,24 +25,27 @@ class PaperFigure(BaseModel):
     summary: str
 
 
-class PaperSummary(BaseModel):
+class PaperQuery(BaseModel):
     domain: str
     problem: str
     solution: str
+
+
+class PaperSummary(PaperQuery):
     keywords: list[str]
 
 
 class Paper(BaseModel):
     id: str
-    abstract: str = None
-    body: list[PaperBody] = None
-    impact: int = None
-    summary: PaperSummary = None
-    published_year: str = None
-    reference: list[str] = None
-    figures: list[PaperFigure] = None
-    tables: list[PaperFigure] = None
-    title: str = None
+    abstract: str | None= None
+    body: list[PaperBody] | None = None
+    impact: int | None = None
+    summary: PaperSummary | None = None
+    published_year: str | None = None
+    reference: list[str] | None = None
+    figures: list[PaperFigure] | None = None
+    tables: list[PaperFigure] | None = None
+    title: str | None = None
 
 
 class Token(BaseModel):

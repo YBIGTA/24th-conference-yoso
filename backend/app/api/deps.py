@@ -4,10 +4,13 @@ import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
+from neo4j import Driver, GraphDatabase
+from pinecone import Index
+from pymongo.collection import Collection
 from sqlmodel import Session
 
 from app.core.config import settings
-from app.core.db import engine
+from app.core.db import engine, collection, index
 from app.core.security import ALGORITHM
 from app.models import User, TokenPayload
 
@@ -25,7 +28,35 @@ def get_db() -> Generator[Session, None, None]:
         yield session
 
 
+def get_mongo_collection() -> Generator[Collection, None, None]:
+    """
+    MongoDB collection.
+    """
+    return collection
+
+
+def get_pinecone_index() -> Generator[Index, None, None]:
+    """
+    Pinecone index.
+    """
+    return index
+
+
+def get_graph_db() -> Generator[Driver, None, None]:
+    """
+    Neo4j driver.
+    """
+    with GraphDatabase.driver(
+        uri=settings.NEO4J_URI, 
+        auth=(settings.NEO4J_USERNAME, settings.NEO4J_PASSWORD)
+    ) as driver:
+        yield driver
+
+
 SessionDep = Annotated[Session, Depends(get_db)]
+CollectionDep = Annotated[Collection, Depends(get_mongo_collection)]
+IndexDep = Annotated[Index, Depends(get_pinecone_index)]
+DriverDep = Annotated[Driver, Depends(get_graph_db)]
 TokenDep = Annotated[str, Depends(oauth2_scheme)]
 
 

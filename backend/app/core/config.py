@@ -28,6 +28,14 @@ class Settings(BaseSettings):
     MONGO_DATABASE: str
     MONGO_COLLECTION: str
 
+    NEO4J_URI: str
+    NEO4J_USERNAME: str
+    NEO4J_PASSWORD: str
+
+    PINECONE_API_KEY: str
+    PINECONE_INDEX: str
+    
+
     @computed_field
     @property
     def SQLALCHEMY_DATABSE_URI(self) -> PostgresDsn:
