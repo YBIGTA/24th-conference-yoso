@@ -1,19 +1,37 @@
-version: '3.8'
+# version: '3.9'
 services:
-  server:
-    build:
-      context: .
-      dockerfile: ./server/Dockerfile
-    image: yxxjimin/yoso-server
+  postgres:
+    image: postgres
+    restart: always
     env_file:
       - .env
     ports:
-      - 80:80
-  graph:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    volumes:
+      - ./db/pgdata:/var/lib/postgresql/data/pgdata
+  neo4j:
     image: neo4j
     ports:
       - 7474:7474
       - 7687:7687
     volumes:
-      - ./server/database/neo4j/data:/data
-      - ./server/database/neo4j/logs:/logs
+      - ./db/neo4j/data:/data
+      - ./db/neo4j/logs:/logs
+  server:
+    build:
+      context: .
+    image: yxxjimin/yoso-server
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_SERVER=postgres
+    ports:
+      - 80:80
