@@ -1,6 +1,8 @@
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
+from app.models import Vector
+
 
 model_name = "paraphrase-albert-small-v2"
 model = SentenceTransformer(model_name)
@@ -68,3 +70,31 @@ def cosine_similarity(
     """
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
+
+def filter_by_similarity(
+    src: np.ndarray,
+    tgt_list: list[Vector],
+    k: int
+) -> list[dict]:
+    """
+    Filters and returns the top-k vectors from the target list based on 
+    cosine similarity to the source vector.
+
+    Args:
+        src: The source vector to compare against.
+        tgt_list: A list of `Vector` objects, each containing an id and 
+            an embedding.
+        k: The number of top similar vectors to return.
+
+    Returns:
+        A list of dictionaries containing the ids and similarity scores 
+        of the top-k most similar vectors to the source vector.
+    """
+    scores = [{
+        "id": vec.id,
+        "score": cosine_similarity(src, vec.embedding)
+    } for vec in tgt_list]
+
+    scores.sort(reverse=True, key=lambda x: x["score"])
+
+    return scores[:k]

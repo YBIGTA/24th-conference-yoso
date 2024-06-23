@@ -1,5 +1,6 @@
+from numpy import ndarray
 from sqlmodel import Field, SQLModel
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class GraphNodeBase(BaseModel):
@@ -9,6 +10,13 @@ class GraphNodeBase(BaseModel):
 
 class GraphNode(GraphNodeBase):
     s_title: str
+
+
+class Vector(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    id: str
+    embedding: ndarray
 
 
 class PaperBody(BaseModel):
@@ -47,6 +55,24 @@ class Paper(BaseModel):
     tables: list[PaperFigure] | None = None
     title: str | None = None
     authors: list[str] = None
+
+
+class PaperCore(BaseModel):
+    id: str
+    title: str
+    published_year: str | None = None
+    keywords: list[str] | None = None
+    citations: int | None = None
+
+
+class PaperGraph(BaseModel):
+    num_nodes: int
+    root_id: str
+    query: PaperQuery
+
+
+class PaperScore(PaperCore):
+    score: float
 
 
 class Token(BaseModel):

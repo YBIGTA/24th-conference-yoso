@@ -11,7 +11,8 @@ from app.models import (
     Paper, 
     PaperQuery, 
     GraphNodeBase, 
-    GraphNode
+    GraphNode, 
+    Vector
 )
 from app.utils import sanitize_text, create_embedding, model_name
 
@@ -45,6 +46,8 @@ def authenticate_user(
 
 def get_paper_by_id(collection: Collection, paper_id: str) -> Paper | None:
     paper_data = collection.find_one({"_id": paper_id})
+    if not paper_data:
+        return None
     paper_data["id"] = paper_data.pop("_id")
     paper = Paper.model_validate(obj=paper_data)
     return paper
@@ -134,10 +137,9 @@ def get_vector_ids_by_sentence(
     return [vec["id"] for vec in res["matches"]]
 
 
-def get_vectors_by_ids(index: Index, ids: list[str]) -> list[dict]:
+def get_vectors_by_ids(index: Index, ids: list[str]) -> list[Vector]:
     results = index.fetch(ids=ids, namespace=model_name)["vectors"]
-    return [{
-        "id": results[id]["id"],
-        "vector": np.asarray(results[id]["values"]),
-    } for id in results]
-
+    return [Vector(
+        id=results[id]["id"],
+        embedding=np.asarray(results[id]["values"])
+    ) for id in results]
