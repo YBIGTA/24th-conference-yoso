@@ -46,6 +46,7 @@ class Paper(BaseModel):
     figures: list[PaperFigure] | None = None
     tables: list[PaperFigure] | None = None
     title: str | None = None
+    authors: list[str] = None
 
 
 class Token(BaseModel):

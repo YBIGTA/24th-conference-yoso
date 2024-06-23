@@ -44,7 +44,9 @@ def authenticate_user(
 
 
 def get_paper_by_id(collection: Collection, paper_id: str) -> Paper | None:
-    paper = collection.find_one({"_id": paper_id})
+    paper_data = collection.find_one({"_id": paper_id})
+    paper_data["id"] = paper_data.pop("_id")
+    paper = Paper.model_validate(obj=paper_data)
     return paper
 
 
