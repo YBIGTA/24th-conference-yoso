@@ -1,19 +1,22 @@
 from fastapi import APIRouter, HTTPException, status, UploadFile
 
-from app.api.deps import CollectionDep, DriverDep, IndexDep
+from app.api.deps import CollectionDep, DriverDep, IndexDep, SessionDep
 from app.core.db import collection
 from app.crud import (
     get_paper_by_id, 
     upsert_paper, 
     create_vector,
     create_graph_node,
-    create_graph_relationship
+    create_graph_relationship,
+    create_upload_status,
+    update_upload_status
 )
 from app.models import (
     Paper, 
     PaperQuery, 
     GraphNodeBase
 )
+from app.utils import upload_file_to_s3
 
 
 router = APIRouter()
@@ -66,3 +69,32 @@ def create_paper(
                 create_graph_relationship(driver, paper_data.title, ref_title)
 
     return get_paper_by_id(collection, paper_data.id)
+
+
+@router.post(
+    path="/upload",
+    summary="Upload PDF file"
+)
+async def upload_file(
+    file: UploadFile,
+    session: SessionDep
+):
+    upload_status = create_upload_status(session, file.filename)
+    if not upload_status:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+    
+    # Upload PDF file to S3
+    url = upload_file_to_s3(file, "pdf")
+    if not url:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to upload file"
+        )
+    upload_status.pdf_uploaded = True
+    upload_status = update_upload_status(session, upload_status)
+
+    return {
+        "url": url
+    }

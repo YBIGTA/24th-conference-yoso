@@ -1,3 +1,5 @@
+from datetime import datetime,timedelta
+
 from numpy import ndarray
 from sqlmodel import Field, SQLModel
 from pydantic import BaseModel, ConfigDict
@@ -98,3 +100,15 @@ class User(UserBase, table=True):
 
 class UserRegister(UserBase):
     password: str
+
+
+class UploadStatus(SQLModel, table=True):
+    request_id: int | None = Field(default=None, primary_key=True)
+    filename: str
+    requested_date: datetime | None = Field(
+        default_factory=lambda: datetime.now())
+    pdf_uploaded: bool = False
+    bbox_detected: bool = False
+    metadata_parsed: bool = False
+    images_uploaded: bool = False
+    metadata_stored: bool = False

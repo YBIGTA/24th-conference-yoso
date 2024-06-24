@@ -12,7 +12,8 @@ from app.models import (
     PaperQuery, 
     GraphNodeBase, 
     GraphNode, 
-    Vector
+    Vector,
+    UploadStatus
 )
 from app.utils import sanitize_text, create_embedding, model_name
 
@@ -42,6 +43,28 @@ def authenticate_user(
     if not verify_password(password, user.hashed_password):
         return None
     return user
+
+
+def create_upload_status(
+        session: Session, filename: str) -> UploadStatus | None:
+    upload_status = UploadStatus(filename=filename)
+    session.add(upload_status)
+    session.commit()
+    session.refresh(upload_status)
+    return upload_status
+
+
+def update_upload_status(
+        session: Session, upload_status: UploadStatus) -> UploadStatus | None:
+    current_status = session.get(UploadStatus, upload_status.request_id)
+    if not current_status:
+        return None
+    upload_status_data = upload_status.model_dump(exclude_unset=True)
+    current_status.sqlmodel_update(upload_status_data)
+    session.add(current_status)
+    session.commit()
+    session.refresh(current_status)
+    return current_status
 
 
 def get_paper_by_id(collection: Collection, paper_id: str) -> Paper | None:
