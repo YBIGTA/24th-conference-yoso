@@ -1,13 +1,9 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, UploadFile
 
 from app.api.deps import CollectionDep, DriverDep, IndexDep
 from app.core.db import collection
 from app.crud import (
     get_paper_by_id, 
-    get_vector_ids_by_sentence, 
-    get_vectors_by_ids, 
-    get_citation_nodes, 
-    get_reference_nodes, 
     upsert_paper, 
     create_vector,
     create_graph_node,
@@ -16,12 +12,8 @@ from app.crud import (
 from app.models import (
     Paper, 
     PaperQuery, 
-    PaperCore, 
-    PaperGraph, 
-    PaperScore, 
     GraphNodeBase
 )
-from app.utils import create_embedding, filter_by_similarity
 
 
 router = APIRouter()
@@ -38,66 +30,6 @@ def get_paper(
             detail=f"Paper {paper_id} does not exist"
         )
     return paper
-
-
-@router.post(
-    path="/search", 
-    summary="Search top 5 papers based on query text", 
-    response_model=list[PaperCore]
-)
-async def retrieve_core_papers(
-    body: PaperQuery,
-    collection: CollectionDep,
-    index: IndexDep
-):
-    # Retrieve top 5 relevant paper ids
-    paper_ids = get_vector_ids_by_sentence(
-        index=index,
-        text=body,
-        k=5
-    )
-
-    # Fetch title, year, keywords from document database
-    papers = [get_paper_by_id(collection, id) for id in paper_ids]
-
-    return [PaperCore(**paper.model_dump()) for paper in papers 
-            if paper is not None]
-
-
-@router.post(
-    path="/search/graph", 
-    summary="Search subgraph nodes given root node", 
-    response_model=list[PaperScore]
-)
-async def construct_graph(
-    body: PaperGraph, 
-    collection: CollectionDep,
-    driver: DriverDep,
-    index: IndexDep
-):
-    # Fetch ids of adjacent nodes
-    references = get_reference_nodes(driver, body.root_id)
-    citations = get_citation_nodes(driver, body.root_id)
-
-    # Fetch embeddings of adjacent nodes
-    vectors = (get_vectors_by_ids(index, references) 
-               + get_vectors_by_ids(index, citations))
-    print(vectors)
-
-    # Rank by similarity score
-    query_vector = create_embedding(**body.query.model_dump())
-    similarity_scores = filter_by_similarity(
-        src=query_vector,
-        tgt_list=vectors,
-        k=body.num_nodes
-    )
-    scores_dict = {elem["id"]: elem["score"] for elem in similarity_scores}
-
-    # Get filtered document info 
-    papers = [get_paper_by_id(collection, id).model_dump() 
-              | {"score": scores_dict[id]} for id in scores_dict.keys()]
-
-    return [PaperScore(**paper) for paper in papers]
 
 
 @router.put(
