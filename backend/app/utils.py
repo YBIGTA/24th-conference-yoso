@@ -1,11 +1,21 @@
+import boto3
 import numpy as np
+import urllib
+from fastapi import UploadFile
 from sentence_transformers import SentenceTransformer
 
+from app.core.config import settings
 from app.models import Vector
 
 
 model_name = "paraphrase-albert-small-v2"
 model = SentenceTransformer(model_name)
+
+s3_client = boto3.client(
+    "s3",
+    aws_access_key_id=settings.AWS_ACCESS_KEY_ID, 
+    aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
+)
 
 
 def sanitize_text(text: str) -> str:
@@ -30,11 +40,7 @@ def sanitize_text(text: str) -> str:
     )
 
 
-def create_embedding(
-    domain: str,
-    problem: str,
-    solution: str,
-) -> np.ndarray:
+def create_embedding(domain: str, problem: str, solution: str) -> np.ndarray:
     """
     Creates an embedding by encoding and concatenating the given 
     domain, problem, and solution texts.
@@ -49,14 +55,10 @@ def create_embedding(
         input texts.
     """
     sentences = [domain, problem, solution]
-    
     return np.concatenate(model.encode(sentences))
 
 
-def cosine_similarity(
-    a: np.ndarray,
-    b: np.ndarray
-) -> float:
+def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
     """
     Computes the cosine similarity between two vectors.
 
@@ -72,10 +74,7 @@ def cosine_similarity(
 
 
 def filter_by_similarity(
-    src: np.ndarray,
-    tgt_list: list[Vector],
-    k: int
-) -> list[dict]:
+        src: np.ndarray, tgt_list: list[Vector], k: int) -> list[dict]:
     """
     Filters and returns the top-k vectors from the target list based on 
     cosine similarity to the source vector.
@@ -94,7 +93,32 @@ def filter_by_similarity(
         "id": vec.id,
         "score": cosine_similarity(src, vec.embedding)
     } for vec in tgt_list]
-
     scores.sort(reverse=True, key=lambda x: x["score"])
-
     return scores[:k]
+
+
+def upload_file_to_s3(file: UploadFile, dir: str) -> str | None:
+    """
+    Uploads a file to an S3 bucket.
+
+    Args:
+        file: The file to be uploaded.
+        dir: The directory in the S3 bucket where the file will be 
+            uploaded.
+
+    Returns:
+        The URL of the uploaded file if the upload is successful, 
+        otherwise None.
+    """
+    if not file:
+        return None
+    try:
+        s3_client.upload_fileobj(
+            Fileobj=file.file,
+            Bucket=settings.S3_BUCKET_NAME,
+            Key=f"{dir}/{file.filename}"
+        )
+    except:
+        return None
+    url = f"https://s3-ap-northeast-2.amazonaws.com/{settings.S3_BUCKET_NAME}/{urllib.parse.quote(f"{dir}/{file.filename}", safe="~()*!.'")}"
+    return url
