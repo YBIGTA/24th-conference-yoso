@@ -16,7 +16,6 @@ class GraphNode(GraphNodeBase):
 
 class Vector(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
-
     id: str
     embedding: ndarray
 
@@ -45,7 +44,12 @@ class PaperSummary(PaperQuery):
     keywords: list[str]
 
 
-class Paper(BaseModel):
+class PaperBase(BaseModel):
+    id: str
+    title: str
+
+
+class Paper(PaperBase):
     id: str
     abstract: str | None= None
     body: list[PaperBody] | None = None
@@ -111,4 +115,5 @@ class UploadStatus(SQLModel, table=True):
     bbox_detected: bool = False
     metadata_parsed: bool = False
     images_uploaded: bool = False
+    keywords_extracted: bool = False
     metadata_stored: bool = False
