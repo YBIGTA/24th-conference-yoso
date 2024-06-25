@@ -63,7 +63,6 @@ async def search_subgraph(
     # Fetch embeddings of adjacent nodes
     vectors = (get_vectors_by_ids(index, references) 
                + get_vectors_by_ids(index, citations))
-    print(vectors)
 
     # Rank by similarity score
     query_vector = create_embedding(**body.query.model_dump())
