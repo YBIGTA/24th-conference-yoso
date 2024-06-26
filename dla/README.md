@@ -23,3 +23,9 @@ unzip model.zip -d ./model
 ```
 python main.py
 ```
+# Reading Order
+아직 모듈화가 진행되지 않음. 시험용으로 사용한 코드 업로드 함.
+```
+!pip install transformers
+```
+만 있으면 기존의 layout 환경에서 돌아갈 것.
