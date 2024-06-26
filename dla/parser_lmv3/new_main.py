@@ -61,12 +61,35 @@ class DocumentProcessor:
      ]
         
     def normalize(self, examples):
-        width, height = examples['width'], examples['height']
-        normalized_bboxes = [
-            [int(np.rint(max(0, bbox[i]) / width * 1000)) if i % 2 == 0 else int(np.rint(max(0, bbox[i]) / height * 1000)) for i in range(4)]
-            for bbox in examples['bboxes']
-        ]
-        return {"bboxes": normalized_bboxes, "texts": examples["texts"], "width": width, "height": height}
+        coco_width = examples['width']
+        coco_height = examples['height']
+        
+        normalized_bboxes = []
+        ## bboxes_block가 비어 있는지 확인해봅시다.
+        if examples['bboxes']:    
+            for bbox in examples['bboxes']:
+    		        ## (x,y,w,h) -> (x,y,x+w,y+h)
+    		        ## 가끔 음수가 뜨기도 해서 max(0,val) 적용해줍니다.
+                x1 = max(0,bbox[0])
+                y1 = max(0,bbox[1])
+                x2 = max(0,bbox[2])
+                y2 = max(0,bbox[3])
+    
+                normalized_bbox = [
+                    int(np.rint(x1 / coco_width * 1000)),
+                    int(np.rint(y1 / coco_height * 1000)),
+                    int(np.rint(x2 / coco_width * 1000)),
+                    int(np.rint(y2 / coco_height * 1000))
+                ]
+                
+                normalized_bboxes.append(normalized_bbox)
+                
+        return {
+            "bboxes": normalized_bboxes,
+            "texts" : examples["texts"],
+            "height" : examples["height"],
+            "width" : examples["width"]
+        }
 
     def layout_parser(self, img):
         model = lp.Detectron2LayoutModel('lp://PubLayNet/mask_rcnn_X_101_32x8d_FPN_3x/config',
