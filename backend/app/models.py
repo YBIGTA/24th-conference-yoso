@@ -46,11 +46,10 @@ class PaperSummary(PaperQuery):
 
 class PaperBase(BaseModel):
     id: str
-    title: str
+    title: str | None = None
 
 
-class PaperInference(BaseModel):
-    id: str
+class PaperInference(PaperBase):
     abstract: str | None= None
     body: list[PaperBody] | None = None
     impact: int | None = None
@@ -58,7 +57,6 @@ class PaperInference(BaseModel):
     reference: list[str] | None = None
     figures: list[PaperFigure] | None = None
     tables: list[PaperFigure] | None = None
-    title: str | None = None
     authors: list[str] | None = None
 
 
@@ -66,12 +64,11 @@ class Paper(PaperInference):
     summary: PaperSummary | None = None
 
 
-class PaperCore(BaseModel):
-    id: str
-    title: str
+class PaperCore(PaperBase):
     published_year: str | None = None
     keywords: list[str] | None = None
     citations: int | None = None
+    authors: list[str]
 
 
 class PaperGraph(BaseModel):
