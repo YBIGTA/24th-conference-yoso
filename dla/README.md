@@ -10,7 +10,9 @@
 !pip install layoutparser
 !pip install "detectron2@git+https://github.com/facebookresearch/detectron2.git@v0.5#egg=detectron2"
 !pip install pdf2img
-!pip install "layoutparser[ocr]" 
+!pip install "layoutparser[ocr]"
+!pip uninstall google-cloud-vision google-api-core google-cloud-storage
+!pip install google-cloud-vision google-api-core google-cloud-storage
 ```
 model.zip google-drive에서 다운로드
 ```
