@@ -1,7 +1,7 @@
 import numpy as np
 import layoutparser as lp
 import pdf2image
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 import os
 import re
 import json
@@ -98,7 +98,6 @@ class DocumentProcessor:
         img_np = np.asarray(img)
         layout_result = model.detect(img_np)
         layout_result = self.sort_layout_by_columns(layout_result, threshold=img_np.shape[1] // 2)
-        breakpoint()
         return {"bboxes": self.extract_bboxes(layout_result), "texts": self.ocr(img, layout_result), "width": img_np.shape[1], "height": img_np.shape[0]}
     
     def segment_image(self, img, output, page_number):
@@ -144,6 +143,11 @@ class DocumentProcessor:
         output_dir = os.path.join(self.result_path, "visualize", self.pdf_id)
         os.makedirs(output_dir, exist_ok=True)
 
+        # PIL 이미지 객체 생성
+        image = Image.fromarray(img_np)
+        draw = ImageDraw.Draw(image)
+        font = ImageFont.load_default()
+
         for category, bbox in output:
             x1, y1, x2, y2 = map(int, bbox)
             
@@ -157,12 +161,12 @@ class DocumentProcessor:
                 continue  # 바운딩 박스가 유효하지 않은 경우 건너뜀
             
             color = category_colors.get(category, (255, 255, 255))  # Default to white if category not found
-            cv2.rectangle(img_np, (x1, y1), (x2, y2), color, 2)
-            cv2.putText(img_np, category, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, color, 2)
+            draw.rectangle([x1, y1, x2, y2], outline=color)
+            draw.text((x1 + 10, y1 - 10), category, fill=color, font=font)
 
         output_path = os.path.join(output_dir, f"{page_number}.png")
-        cv2.imwrite(output_path, img_np)
-    
+        image.save(output_path)
+        
     def create_json_from_output(self, output):
         json_data = {"id": self.pdf_id, "elements": []}
         for page_number, page_output in enumerate(output):
@@ -182,11 +186,13 @@ class DocumentProcessor:
     def process(self):
         results = []
         images = pdf2image.convert_from_path(self.pdf_path)
+        # print pd_id 
+        print(f'PDF_ID: {self.pdf_id}')
         for page_number, img in enumerate(images):
             output = self.layout_parser(img)
-            breakpoint()
             output = self.normalize(output)
             words, boxes = output["texts"], output["bboxes"]
+            words = [word[:80] for word in words]
             width, height = output["width"], output["height"]
             encoding = self.processor(img, words, boxes=boxes, return_offsets_mapping=True, return_tensors="pt", truncation=True, padding="max_length")
             offset_mapping = encoding.pop('offset_mapping')
@@ -225,7 +231,7 @@ def main():
 
     pdf_files = os.listdir(pdf_directory)
     if debug:
-        pdf_files = pdf_files[:5]
+        pdf_files = pdf_files[:1]
     
     for pdf_file in pdf_files:
         pdf_path = os.path.join(pdf_directory, pdf_file)
