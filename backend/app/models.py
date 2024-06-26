@@ -49,18 +49,21 @@ class PaperBase(BaseModel):
     title: str
 
 
-class Paper(PaperBase):
+class PaperInference(BaseModel):
     id: str
     abstract: str | None= None
     body: list[PaperBody] | None = None
     impact: int | None = None
-    summary: PaperSummary | None = None
     published_year: str | None = None
     reference: list[str] | None = None
     figures: list[PaperFigure] | None = None
     tables: list[PaperFigure] | None = None
     title: str | None = None
-    authors: list[str] = None
+    authors: list[str] | None = None
+
+
+class Paper(PaperInference):
+    summary: PaperSummary | None = None
 
 
 class PaperCore(BaseModel):

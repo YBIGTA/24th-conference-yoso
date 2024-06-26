@@ -7,7 +7,12 @@ from fastapi import (
     UploadFile, 
     status
 )
+from neo4j import Driver
 from openai import OpenAI
+from pinecone import Index
+from pydantic_core import ValidationError
+from pymongo.collection import Collection
+from sqlmodel import Session
 
 from app.api.deps import CollectionDep, DriverDep, IndexDep, SessionDep
 from app.core.db import collection
@@ -24,6 +29,7 @@ from app.models import (
     Paper, 
     PaperQuery, 
     PaperSummary,
+    PaperInference,
     GraphNodeBase,
     UploadStatus
 )
@@ -82,47 +88,91 @@ def create_paper(
     return get_paper_by_id(collection, paper_data.id)
 
 
-def handle_upload(
-        file: UploadFile, collection: CollectionDep, driver: DriverDep, 
-        index: IndexDep, session: SessionDep, upload_status: UploadStatus):
-    ##### Start inference
+def detect_bounding_box(file: UploadFile):
+    """
+    Detect bounding box with LayoutParser
+    """
     pass
-    parsed_data = {"id": "hello-world", "abstract": "Most recent semantic segmentation methods adopt\na fully-convolutional network (FCN) with an encoder-\ndecoder architecture. The encoder progressively reduces\nthe spatial resolution and learns more abstract/semantic\nvisual concepts with larger receptive fields. Since context\nmodeling is critical for segmentation, the latest efforts have\nbeen focused on increasing the receptive field, through ei-\nther dilated/atrous convolutions or inserting attention mod-\nules. However, the encoder-decoder based FCN architec-\nture remains unchanged. In this paper, we aim to provide\nan alternative perspective by treating semantic segmenta-\ntion as a sequence-to-sequence prediction task. Specifically,\nwe deploy a pure transformer (i.e., without convolution and\nresolution reduction) to encode an image as a sequence of\npatches. With the global context modeled in every layer of\nthe transformer, this encoder can be combined with a simple\ndecoder to provide a powerful segmentation model, termed\nSEgmentation TRansformer (SETR). Extensive experiments\nshow that SETR achieves new state of the art on ADE20K\n(50.28% mIoU), Pascal Context (55.83% mIoU) and com-\npetitive results on Cityscapes. Particularly, we achieve the\nfirst position in the highly competitive ADE20K test server\nleaderboard on the day of submission."}
-    ##### End inference
+
+
+def parse_metadata(detection) -> PaperInference:
+    """
+    Parse metadata with LayoutLMv3
+    """
+    return PaperInference(
+        id="default",
+        abstract="default abstract text"
+    )
+
+
+def extract_paper_summary(data: PaperInference) -> Paper:
+    """
+    Extract domain, problem, solution and keywords using OpenAI API
+    """
+    client = OpenAI()
+
+    prompt = """You are an assistant for writing academic papers. You are 
+    skilled at extracting research domain, problems of previous studies, 
+    solution to the problem in single sentence and keywords. Your answer must 
+    be in format of JSON {\"domain\": string, \"problem\": string, \"solution\"
+    : string, \"keywords\": [string]}."""
+    
+    completion = client.chat.completions.create(
+        model="gpt-3.5-turbo-0125",
+        response_format={ "type": "json_object" },
+        messages=[
+            {"role": "system", "content": prompt},
+            {"role": "user", "content": data.abstract}
+        ]
+    )
+    res = completion.choices[0].message.content
+
+    try:
+        summary = PaperSummary.model_validate(obj=json.loads(res))
+        paper_data = Paper.model_validate(
+            obj=(data.model_dump() | {"summary": summary}))
+        return paper_data
+    except ValidationError as e:
+        print(e)
+        return None
+
+
+def handle_upload(
+        file: UploadFile, collection: Collection, driver: Driver, index: Index, 
+        session: Session, upload_status: UploadStatus):
+    """
+    Background task for model inference
+    """
+    # Layout parser
+    detection = detect_bounding_box(file)
     upload_status.bbox_detected = True
+    upload_status = update_upload_status(session, upload_status)
+    
+    # LayouLMv3
+    parsed_metadata = parse_metadata(detection)
     upload_status.metadata_parsed = True
     upload_status = update_upload_status(session, upload_status)
 
     # Upload images to S3
-    pass
+    for img_file in []:
+        upload_file_to_s3(img_file, "img")
     upload_status.images_uploaded = True
     upload_status = update_upload_status(session, upload_status)
 
     # Extract summary using OpenAI API
-    client = OpenAI()
-    completion = client.chat.completions.create(
-        model="gpt-3.5-turbo-16k",
-        messages=[
-            {"role": "system", "content": "You are an assistant for writing academic papers. You are skilled at extracting research domain, problems of previous studies, solution to the problem in single sentence and keywords. Your answer must be in format of JSON {\"domain\": string, \"problem\": string, \"solution\": string, \"keywords\": [string]}."},
-            {"role": "user", "content": parsed_data["abstract"]}
-        ]
-    )
-    raw_resp = completion.choices[0].message.content
-    try:
-        summary = PaperSummary.model_validate(
-            obj=json.loads(raw_resp.replace("'", '"'))
-        )
-        parsed_data["summary"] = summary
-        upload_status.keywords_extracted = True
-        upload_status = update_upload_status(session, upload_status)
-    except Exception as e:
-        print(e)
+    paper_data = extract_paper_summary(parsed_metadata)
+    if not paper_data:
+        return
+    upload_status.keywords_extracted = True
+    upload_status = update_upload_status(session, upload_status)
 
     # Save to database
-    paper = Paper.model_validate(obj=parsed_data)
+    paper = Paper.model_validate(obj=paper_data)
     create_paper(paper, collection, driver, index)
     upload_status.metadata_stored = True
     upload_status = update_upload_status(session, upload_status)
+
+    print(f"INFO:     Background task completed for {file.filename}")
 
 
 @router.post(
