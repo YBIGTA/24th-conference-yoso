@@ -67,6 +67,11 @@ def update_upload_status(
     return current_status
 
 
+def get_all_upload_staus(session: Session) -> list[UploadStatus] | None:
+    stmt = select(UploadStatus)
+    return session.exec(stmt).all()
+
+
 def get_paper_by_id(collection: Collection, paper_id: str) -> Paper | None:
     paper_data = collection.find_one({"_id": paper_id})
     if not paper_data:

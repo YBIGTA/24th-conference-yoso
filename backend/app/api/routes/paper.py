@@ -23,7 +23,8 @@ from app.crud import (
     create_graph_node,
     create_graph_relationship,
     create_upload_status,
-    update_upload_status
+    update_upload_status,
+    get_all_upload_staus
 )
 from app.models import (
     Paper, 
@@ -39,7 +40,7 @@ from app.utils import upload_file_to_s3
 router = APIRouter()
 
 
-@router.get("/{paper_id}")
+@router.get("/item/{paper_id}")
 def get_paper(
     paper_id: str
 ):
@@ -50,6 +51,17 @@ def get_paper(
             detail=f"Paper {paper_id} does not exist"
         )
     return paper
+
+
+@router.get(
+    path="/status",
+    summary="Get upload status of all papers",
+    response_model=list[UploadStatus]
+)
+def get_upload_status(
+    session: SessionDep
+):
+    return get_all_upload_staus(session)
 
 
 @router.put(
