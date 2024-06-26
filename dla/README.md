@@ -29,3 +29,4 @@ python main.py
 !pip install transformers
 ```
 만 있으면 기존의 layout 환경에서 돌아갈 것.
+https://github.com/ppaanngggg/layoutreader 참조
