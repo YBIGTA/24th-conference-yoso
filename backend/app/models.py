@@ -68,7 +68,7 @@ class PaperCore(PaperBase):
     published_year: str | None = None
     keywords: list[str] | None = None
     citations: int | None = None
-    authors: list[str]
+    authors: list[str] | None = None
 
 
 class PaperGraph(BaseModel):

@@ -161,6 +161,8 @@ def get_vector_ids_by_sentence(
 
 
 def get_vectors_by_ids(index: Index, ids: list[str]) -> list[Vector]:
+    if not ids:
+        return []
     results = index.fetch(ids=ids, namespace=model_name)["vectors"]
     return [Vector(
         id=results[id]["id"],
