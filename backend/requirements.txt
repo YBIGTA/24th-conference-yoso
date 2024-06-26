@@ -10,6 +10,7 @@ cffi==1.16.0
 charset-normalizer==3.3.2
 click==8.1.7
 cryptography==42.0.8
+distro==1.9.0
 dnspython==2.6.1
 email_validator==2.1.1
 fastapi==0.111.0
@@ -36,6 +37,7 @@ neomodel==5.3.1
 networkx==3.3
 numpy==1.26.4
 odmantic==1.0.2
+openai==1.35.3
 orjson==3.10.3
 packaging==24.0
 passlib==1.7.4
