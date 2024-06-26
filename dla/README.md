@@ -13,6 +13,7 @@
 !pip install "layoutparser[ocr]"
 !pip uninstall google-cloud-vision google-api-core google-cloud-storage
 !pip install google-cloud-vision google-api-core google-cloud-storage
+!pip install opencv-python==4.8.0.74
 ```
 model.zip google-drive에서 다운로드
 ```
