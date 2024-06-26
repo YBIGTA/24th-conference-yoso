@@ -53,8 +53,13 @@ class DocumentProcessor:
         return texts
 
     def unnormalize_box(self, bbox, width, height):
-        return [width * (bbox[i] / 1000) for i in range(0, 3, 2)] + [height * (bbox[i] / 1000) for i in range(1, 4, 2)]
-
+        return [
+         width * (bbox[0] / 1000),
+         height * (bbox[1] / 1000),
+         width * (bbox[2] / 1000),
+         height * (bbox[3] / 1000),
+     ]
+        
     def normalize(self, examples):
         width, height = examples['width'], examples['height']
         normalized_bboxes = [
