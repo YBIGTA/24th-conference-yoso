@@ -1,33 +1,49 @@
-from fastapi import APIRouter, HTTPException, status
+import json
 
-from app.api.deps import CollectionDep, DriverDep, IndexDep
+from fastapi import (
+    APIRouter, 
+    BackgroundTasks, 
+    HTTPException, 
+    UploadFile, 
+    status
+)
+from neo4j import Driver
+from openai import OpenAI
+from pinecone import Index
+from pydantic_core import ValidationError
+from pymongo.collection import Collection
+from sqlmodel import Session
+
+from app.api.deps import CollectionDep, DriverDep, IndexDep, SessionDep
 from app.core.db import collection
 from app.crud import (
     get_paper_by_id, 
-    get_vector_ids_by_sentence, 
-    get_vectors_by_ids, 
-    get_citation_nodes, 
-    get_reference_nodes, 
     upsert_paper, 
     create_vector,
     create_graph_node,
-    create_graph_relationship
+    create_graph_relationship,
+    create_upload_status,
+    update_upload_status,
+    get_all_upload_staus,
+    get_upload_status_by_request_id
 )
 from app.models import (
     Paper, 
     PaperQuery, 
-    PaperCore, 
-    PaperGraph, 
-    PaperScore, 
-    GraphNodeBase
+    PaperSummary,
+    PaperInference,
+    GraphNodeBase,
+    UploadStatus,
+    UploadStatusCreate,
+    UpdateUploadStatus
 )
-from app.utils import create_embedding, filter_by_similarity
+from app.utils import upload_file_to_s3
 
 
 router = APIRouter()
 
 
-@router.get("/{paper_id}")
+@router.get("/item/{paper_id}")
 def get_paper(
     paper_id: str
 ):
@@ -40,65 +56,82 @@ def get_paper(
     return paper
 
 
-@router.post(
-    path="/search", 
-    summary="Search top 5 papers based on query text", 
-    response_model=list[PaperCore]
+@router.get(
+    path="/status/all",
+    summary="Get upload status of all papers",
+    response_model=list[UploadStatus]
 )
-async def retrieve_core_papers(
-    body: PaperQuery,
-    collection: CollectionDep,
-    index: IndexDep
+def get_upload_status(
+    session: SessionDep
 ):
-    # Retrieve top 5 relevant paper ids
-    paper_ids = get_vector_ids_by_sentence(
-        index=index,
-        text=body,
-        k=5
-    )
-
-    # Fetch title, year, keywords from document database
-    papers = [get_paper_by_id(collection, id) for id in paper_ids]
-
-    return [PaperCore(**paper.model_dump()) for paper in papers 
-            if paper is not None]
+    return get_all_upload_staus(session)
 
 
 @router.post(
-    path="/search/graph", 
-    summary="Search subgraph nodes given root node", 
-    response_model=list[PaperScore]
+    path="/status",
+    summary="Create upload status of given paper",
+    response_model=UploadStatus
 )
-async def construct_graph(
-    body: PaperGraph, 
-    collection: CollectionDep,
-    driver: DriverDep,
-    index: IndexDep
+def post_upload_status(
+    session: SessionDep,
+    filename: UploadStatusCreate
 ):
-    # Fetch ids of adjacent nodes
-    references = get_reference_nodes(driver, body.root_id)
-    citations = get_citation_nodes(driver, body.root_id)
+    return create_upload_status(session, filename.filename)
 
-    # Fetch embeddings of adjacent nodes
-    vectors = (get_vectors_by_ids(index, references) 
-               + get_vectors_by_ids(index, citations))
-    print(vectors)
 
-    # Rank by similarity score
-    query_vector = create_embedding(**body.query.model_dump())
-    similarity_scores = filter_by_similarity(
-        src=query_vector,
-        tgt_list=vectors,
-        k=body.num_nodes
+@router.put(
+    path="/status",
+    summary="Update upload status of given paper"
+)
+def put_upload_status(
+    session: SessionDep,
+    status_data: UpdateUploadStatus
+):
+    current_status = get_upload_status_by_request_id(
+        session, status_data.request_id)
+    status_data = status_data.model_dump()
+    new_status_data = current_status.model_dump() | {
+        key: status_data[key] for key in status_data 
+        if status_data[key] is not None
+    }
+    new_status = UploadStatus.model_validate(obj=new_status_data)
+    return update_upload_status(session, new_status)
+
+
+def extract_paper_summary(data: PaperInference) -> Paper:
+    """
+    Extract domain, problem, solution and keywords using OpenAI API
+    """
+    client = OpenAI()
+
+    prompt = """You are an assistant for writing academic papers. You are 
+    skilled at extracting research domain, problems of previous studies, 
+    solution to the problem in single sentence and keywords. Your answer must 
+    be in format of JSON {\"domain\": string, \"problem\": string, \"solution\"
+    : string, \"keywords\": [string]}."""
+    
+    if data.abstract is None:
+        return data
+    completion = client.chat.completions.create(
+        model="gpt-3.5-turbo-0125",
+        response_format={ "type": "json_object" },
+        messages=[
+            {"role": "system", "content": prompt},
+            {"role": "user", "content": data.abstract}
+        ]
     )
-    scores_dict = {elem["id"]: elem["score"] for elem in similarity_scores}
+    res = completion.choices[0].message.content
+    print(f"DEBUG:    OpenAI response {res}")
 
-    # Get filtered document info 
-    papers = [get_paper_by_id(collection, id).model_dump() 
-              | {"score": scores_dict[id]} for id in scores_dict.keys()]
-
-    return [PaperScore(**paper) for paper in papers]
-
+    try:
+        summary = PaperSummary.model_validate(obj=json.loads(res))
+        paper_data = Paper.model_validate(
+            obj=(data.model_dump() | {"summary": summary}))
+        return paper_data
+    except ValidationError as e:
+        print(e)
+        return data
+    
 
 @router.put(
     path="/create",
@@ -111,17 +144,20 @@ def create_paper(
     driver: DriverDep,
     index: IndexDep
 ):
+    # Insert into vector store
+    if paper_data.summary is None:
+        paper_data = extract_paper_summary(
+            PaperInference.model_validate(obj=paper_data))
+    print(paper_data)
+    text = PaperQuery(
+        domain=paper_data.summary.domain,
+        problem=paper_data.summary.problem,
+        solution=paper_data.summary.solution
+    )
+    create_vector(index, paper_data.id, text)
+
     # Insert into document database
     upsert_paper(collection, paper_data)
-    
-    # Insert into vector store
-    if paper_data.summary is not None:
-        text = PaperQuery(
-            domain=paper_data.summary.domain,
-            problem=paper_data.summary.problem,
-            solution=paper_data.summary.solution
-        )
-        create_vector(index, paper_data.id, text)
     
     # Insert into graph database
     if paper_data.title is not None:

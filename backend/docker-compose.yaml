@@ -33,5 +33,6 @@ services:
       - .env
     environment:
       - POSTGRES_SERVER=postgres
+      - NEO4J_URI=neo4j://neo4j:7687
     ports:
       - 80:80
