@@ -1,4 +1,4 @@
-from datetime import datetime,timedelta
+from datetime import datetime
 
 from numpy import ndarray
 from sqlmodel import Field, SQLModel
@@ -50,7 +50,7 @@ class PaperBase(BaseModel):
 
 
 class PaperInference(PaperBase):
-    abstract: str | None= None
+    abstract: str | None = None
     body: list[PaperBody] | None = None
     impact: int | None = None
     published_year: str | None = None
@@ -106,6 +106,10 @@ class UserRegister(UserBase):
     password: str
 
 
+class UploadStatusCreate(BaseModel):
+    filename: str
+
+
 class UploadStatus(SQLModel, table=True):
     request_id: int | None = Field(default=None, primary_key=True)
     filename: str
@@ -117,3 +121,14 @@ class UploadStatus(SQLModel, table=True):
     images_uploaded: bool = False
     keywords_extracted: bool = False
     metadata_stored: bool = False
+
+
+class UpdateUploadStatus(BaseModel):
+    request_id: int
+    pdf_uploaded: bool | None = None
+    bbox_detected: bool | None = None
+    metadata_parsed: bool | None = None
+    images_uploaded: bool | None = None
+    keywords_extracted: bool | None = None
+    metadata_stored: bool | None = None
+    

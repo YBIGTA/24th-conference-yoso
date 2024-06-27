@@ -45,6 +45,11 @@ def authenticate_user(
     return user
 
 
+def get_upload_status_by_request_id(
+        session: Session, request_id: int) -> UploadStatus | None:
+    return session.get(UploadStatus, request_id)
+
+
 def create_upload_status(
         session: Session, filename: str) -> UploadStatus | None:
     upload_status = UploadStatus(filename=filename)

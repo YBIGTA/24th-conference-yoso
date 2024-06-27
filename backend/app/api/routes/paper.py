@@ -24,7 +24,8 @@ from app.crud import (
     create_graph_relationship,
     create_upload_status,
     update_upload_status,
-    get_all_upload_staus
+    get_all_upload_staus,
+    get_upload_status_by_request_id
 )
 from app.models import (
     Paper, 
@@ -32,7 +33,9 @@ from app.models import (
     PaperSummary,
     PaperInference,
     GraphNodeBase,
-    UploadStatus
+    UploadStatus,
+    UploadStatusCreate,
+    UpdateUploadStatus
 )
 from app.utils import upload_file_to_s3
 
@@ -54,7 +57,7 @@ def get_paper(
 
 
 @router.get(
-    path="/status",
+    path="/status/all",
     summary="Get upload status of all papers",
     response_model=list[UploadStatus]
 )
@@ -64,57 +67,35 @@ def get_upload_status(
     return get_all_upload_staus(session)
 
 
-@router.put(
-    path="/create",
-    summary="Create or update a paper",
-    response_model=Paper,
+@router.post(
+    path="/status",
+    summary="Create upload status of given paper",
+    response_model=UploadStatus
 )
-def create_paper(
-    paper_data: Paper,
-    collection: CollectionDep,
-    driver: DriverDep,
-    index: IndexDep
+def post_upload_status(
+    session: SessionDep,
+    filename: UploadStatusCreate
 ):
-    # Insert into document database
-    upsert_paper(collection, paper_data)
-    
-    # Insert into vector store
-    if paper_data.summary is not None:
-        text = PaperQuery(
-            domain=paper_data.summary.domain,
-            problem=paper_data.summary.problem,
-            solution=paper_data.summary.solution
-        )
-        create_vector(index, paper_data.id, text)
-    
-    # Insert into graph database
-    if paper_data.title is not None:
-        node_data = GraphNodeBase(
-            paper_id=paper_data.id, title=paper_data.title)
-        create_graph_node(driver, node_data)
-
-        if paper_data.reference:
-            for ref_title in paper_data.reference:
-                create_graph_relationship(driver, paper_data.title, ref_title)
-
-    return get_paper_by_id(collection, paper_data.id)
+    return create_upload_status(session, filename.filename)
 
 
-def detect_bounding_box(file: UploadFile):
-    """
-    Detect bounding box with LayoutParser
-    """
-    pass
-
-
-def parse_metadata(detection) -> PaperInference:
-    """
-    Parse metadata with LayoutLMv3
-    """
-    return PaperInference(
-        id="default",
-        abstract="default abstract text"
-    )
+@router.put(
+    path="/status",
+    summary="Update upload status of given paper"
+)
+def put_upload_status(
+    session: SessionDep,
+    status_data: UpdateUploadStatus
+):
+    current_status = get_upload_status_by_request_id(
+        session, status_data.request_id)
+    status_data = status_data.model_dump()
+    new_status_data = current_status.model_dump() | {
+        key: status_data[key] for key in status_data 
+        if status_data[key] is not None
+    }
+    new_status = UploadStatus.model_validate(obj=new_status_data)
+    return update_upload_status(session, new_status)
 
 
 def extract_paper_summary(data: PaperInference) -> Paper:
@@ -129,6 +110,8 @@ def extract_paper_summary(data: PaperInference) -> Paper:
     be in format of JSON {\"domain\": string, \"problem\": string, \"solution\"
     : string, \"keywords\": [string]}."""
     
+    if data.abstract is None:
+        return data
     completion = client.chat.completions.create(
         model="gpt-3.5-turbo-0125",
         response_format={ "type": "json_object" },
@@ -138,6 +121,7 @@ def extract_paper_summary(data: PaperInference) -> Paper:
         ]
     )
     res = completion.choices[0].message.content
+    print(f"DEBUG:    OpenAI response {res}")
 
     try:
         summary = PaperSummary.model_validate(obj=json.loads(res))
@@ -146,79 +130,43 @@ def extract_paper_summary(data: PaperInference) -> Paper:
         return paper_data
     except ValidationError as e:
         print(e)
-        return None
-
-
-def handle_upload(
-        file: UploadFile, collection: Collection, driver: Driver, index: Index, 
-        session: Session, upload_status: UploadStatus):
-    """
-    Background task for model inference
-    """
-    # Layout parser
-    detection = detect_bounding_box(file)
-    upload_status.bbox_detected = True
-    upload_status = update_upload_status(session, upload_status)
+        return data
     
-    # LayouLMv3
-    parsed_metadata = parse_metadata(detection)
-    upload_status.metadata_parsed = True
-    upload_status = update_upload_status(session, upload_status)
 
-    # Upload images to S3
-    for img_file in []:
-        upload_file_to_s3(img_file, "img")
-    upload_status.images_uploaded = True
-    upload_status = update_upload_status(session, upload_status)
-
-    # Extract summary using OpenAI API
-    paper_data = extract_paper_summary(parsed_metadata)
-    if not paper_data:
-        return
-    upload_status.keywords_extracted = True
-    upload_status = update_upload_status(session, upload_status)
-
-    # Save to database
-    paper = Paper.model_validate(obj=paper_data)
-    create_paper(paper, collection, driver, index)
-    upload_status.metadata_stored = True
-    upload_status = update_upload_status(session, upload_status)
-
-    print(f"INFO:     Background task completed for {file.filename}")
-
-
-@router.post(
-    path="/upload",
-    summary="Upload PDF file"
+@router.put(
+    path="/create",
+    summary="Create or update a paper",
+    response_model=Paper,
 )
-async def upload_file(
-    file: UploadFile,
-    session: SessionDep,
+def create_paper(
+    paper_data: Paper,
     collection: CollectionDep,
     driver: DriverDep,
-    index: IndexDep,
-    background_tasks: BackgroundTasks
+    index: IndexDep
 ):
-    upload_status = create_upload_status(session, file.filename)
-    if not upload_status:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+    # Insert into vector store
+    if paper_data.summary is None:
+        paper_data = extract_paper_summary(
+            PaperInference.model_validate(obj=paper_data))
+    print(paper_data)
+    text = PaperQuery(
+        domain=paper_data.summary.domain,
+        problem=paper_data.summary.problem,
+        solution=paper_data.summary.solution
+    )
+    create_vector(index, paper_data.id, text)
+
+    # Insert into document database
+    upsert_paper(collection, paper_data)
     
-    # Upload PDF file to S3
-    url = upload_file_to_s3(file, "pdf")
-    if not url:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to upload file"
-        )
-    upload_status.pdf_uploaded = True
-    upload_status = update_upload_status(session, upload_status)
+    # Insert into graph database
+    if paper_data.title is not None:
+        node_data = GraphNodeBase(
+            paper_id=paper_data.id, title=paper_data.title)
+        create_graph_node(driver, node_data)
 
-    # Background task
-    background_tasks.add_task(
-        handle_upload, file, collection, driver, index, session, upload_status)
+        if paper_data.reference:
+            for ref_title in paper_data.reference:
+                create_graph_relationship(driver, paper_data.title, ref_title)
 
-    return {
-        "url": url
-    }
+    return get_paper_by_id(collection, paper_data.id)
