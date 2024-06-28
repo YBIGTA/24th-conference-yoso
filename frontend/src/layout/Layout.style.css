@@ -1,0 +1,212 @@
+.vertical-navbar-container {
+    display: flex;
+    position: relative;
+  }
+  
+  .vertical-navbar {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    transition: width 0.3s;
+    position: relative;
+    width: 200px; /* 펼쳐졌을 때의 너비 설정 */
+  }
+  
+  .vertical-navbar.collapsed {
+    width: 70px; /* 접혔을 때의 너비 설정 */
+  }
+  
+  .vertical-navbar.collapsed ul {
+    margin-top: 20px !important; /* 아이콘 메뉴바를 아래로 내리기 위해 수정 */
+  }
+  
+  .vertical-navbar .logo-container {
+    display: flex;
+    align-items: center;
+    padding: 0px !important;
+    justify-content: space-between;
+  }
+
+  .vertical-navbar.collapsed .ant-menu-item-selected {
+    background-color: #e6f7ff !important; 
+    width: 30% !important;
+    border-radius: 7px !important;
+    margin-left: 17px !important;
+    padding-left: 14px !important;
+    border : none;
+  }
+
+  .vertical-navbar.collapsed .ant-menu-item-selected svg {
+    padding-left: -5px !important;
+  }
+ 
+  .vertical-navbar .ant-menu-item-selected{
+    width: 100%;
+    border-radius: 0px;
+    border-right: 3px solid #1A67F8;
+  }
+
+  .vertical-navbar .ant-menu-item svg {
+    margin-right: 10px;
+    margin-top: 2px;
+  }
+  
+  .vertical-navbar .logo {
+    flex: 1;
+    padding-bottom: 3px !important;
+    padding-left: 1px !important;
+    padding-top: 0px !important;
+  }
+  
+  .menu {
+    height: 100%;
+    border-right: 0;
+  }
+  
+  .ant-menu-item {
+    display: flex;
+    align-items: center;
+    margin-left: 0 !important;
+  }
+
+  .collapse-button {
+    position: absolute;
+    top: 35px;
+    right: 10px; /* 펼친 상태에서 로고 옆에 위치 */
+    width: 15%;
+    color: black;
+    background: #F5F5F5;
+    align-items: center;
+    justify-content: center; /* 버튼 안의 아이콘을 중앙정렬 */
+    padding: 0;
+    border: none;
+    cursor: pointer;
+    outline: none;
+    transition: background-color 0.3s;
+  }
+  
+  .collapse-button:hover {
+    background-color: #e0e0e0; /* 마우스 오버 시 회색 배경 */
+  }
+  
+  .collapsed-button {
+    position: absolute;
+    top: 30px; /* 접힌 상태에서 최상단에 위치 */
+    left: 10px;
+    transition: left 0.3s, top 0.3s;
+  }
+  
+  .custom-icon {
+    font-size: 16px; /* 아이콘 크기 조절 */
+  }
+  
+  .user-panel {
+    width: 300px;
+    background: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .user-panel h2 {
+    font-size: 20px;
+    margin-top: 20px;
+  }
+
+  .custom-hr {
+    margin: none;
+  }
+  
+  
+  .user-input-item {
+    margin-bottom: 20px;
+  }
+
+  .user-input-item span{
+    font-size: 15px;
+  }
+  
+
+
+  .user-input-item label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  .user-input-buttons {
+    display: flex;
+    justify-content: right;
+    margin-top: 10vh;
+  }
+  
+  .user-input-buttons .custom-button {
+    width: 45%;
+  }
+
+/* src/components/Loader.css */
+.progress-container {
+  position: relative;
+  width: 70%;
+  padding: 20px;
+  text-align: center;
+  margin-top: 25vh;
+}
+
+.custom-progress-wrapper {
+  position: relative;
+  width: 100%;
+  height: 40px !important;
+  margin-bottom: 20px;
+}
+
+.custom-progress-wrapper .ant-progress {
+  height: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.custom-progress-circle {
+  position: absolute;
+  top: -20px;
+  width: 40px;
+  height: 40px;
+  background-size: cover;
+  background-repeat: no-repeat;
+  transform: translateX(-50%);
+  z-index: 2;
+  opacity : 1 !important;
+  transition: left 0.5s ease;
+  margin-top: 8px;
+}
+
+.tooltip {
+  position: absolute;
+  top: -45px;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.75);
+  color: white !important;
+  padding: 5px 10px;
+  border-radius: 3px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 3;
+  opacity: 1 !important;
+  transition: left 0.5s ease;
+}
+
+.loading-message {
+  margin-top: 20px;
+  font-size: 16px;
+  color: #333;
+  font-weight: 600;
+}
+
+
+  
+  
+  
+  
+  
+  
+  

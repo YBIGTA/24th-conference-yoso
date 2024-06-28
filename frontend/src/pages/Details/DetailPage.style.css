@@ -1,0 +1,164 @@
+.detail-page {
+  display: flex;
+  background-color: rgba(0, 107, 187, 0.03);
+  font-family: 'Pretendard', sans-serif;
+}
+
+
+.content {
+  flex-grow: 1;
+  padding: 20px;
+  height: 100vh;
+}
+
+.detail-meta {
+  display: flex;
+  align-items: center;
+  color: white;
+  font-weight: 450;
+  font-size: 14px;
+}
+
+.detail-meta span {
+  margin-right: 15px;
+}
+
+.citations {
+  display: flex;
+  align-items: center;
+  margin-top: 3px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 30px;
+  color: white;
+}
+
+.citations span {
+  margin-right: 10px;
+  margin-top: 6px;
+}
+
+.additional-info {
+  background-color: white;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.ant-card-head {
+  min-height: 100px; /* 높이 설정 */
+  max-height: 600px;
+  width: 100%;
+  padding-left: 20px !important; /* 내부 패딩 설정 */
+  padding-right: 0px !important;
+}
+
+.ant-card-head-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 30px;
+}
+
+.ant-card-head-title h2 {
+  margin: 0;
+  color: white;
+  margin-bottom: 20px;
+  width: 90%; /* 너비를 90%로 제한 */
+  display: block; /* 블록 요소로 변경 */
+  word-break: break-word; /* 긴 단어를 다음 줄로 넘기기 */
+  white-space: normal; /* 텍스트가 잘릴 수 있도록 설정 */
+  font-size: 35px;
+}
+
+button.open-graph {
+  background-color: white;
+  color: #194185;
+  position: absolute;
+  bottom: 20px;
+  right: 30px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 10px;
+}
+
+.ant-card-body {
+  background-color: white;
+  color: black;
+}
+
+.abstract-section, .keywords-section {
+  margin-bottom: 20px;
+}
+
+button.close-button {
+  background-color: transparent;
+  color: white;
+  position: absolute;
+  top: -8px;
+  right: 40px;
+  padding: 6px 12px;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.keywords {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.keywords .ant-tag {
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+
+.ant-tabs-tab-btn {
+  white-space: nowrap;
+}
+
+.card-title {
+  position: relative;
+  min-height: 140px;
+}
+
+.custom-card {
+  width: 100%; /* 너비를 더 넓게 조정 */
+  margin-bottom: 20px;
+  background-color: #194185;
+  color: white;
+  position: relative;
+}
+
+.keyword-tag {
+  color: #43BA7F !important;
+  border: 1px solid #43BA7F;
+  background-color: #D1FADF;
+  padding: 5px; /* 태그 패딩 추가 */
+  border-radius: 5px; /* 태그 테두리 둥글게 */
+}
+
+.keywords span {
+  margin-right: 3px;
+  margin-bottom: 3px;
+}
+
+.icon {
+  color: white;
+  margin-right: 5px !important;
+}
+
+.icons {
+  color: #194185;
+  margin-right: 3px !important;
+}
+
+h4 {
+  margin-bottom: 10px;
+  font-weight: 500;
+  font-size: 23px;
+}

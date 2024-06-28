@@ -1,14 +1,15 @@
+// src/components/UserPrompt.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchRootResult } from '../../features/rootSlice';
 import { Steps, Button } from 'antd';
 import { ArrowLeftOutlined, ArrowRightOutlined, RadarChartOutlined } from '@ant-design/icons';
+import Loader from '../../layout/Loader';
 import './UserPrompt.style.css';
 import Domain from './ResearchDomain';
-import { request } from '../../common/axiosInstance';
 
 const UserPrompt = () => {
-
   const [Input, setInput] = useState({
     domain: '',
     problem: '',
@@ -18,18 +19,17 @@ const UserPrompt = () => {
   const [error, setError] = useState({
     domain: false,
     problem: false,
-    solution: false
+    solution: false,
   });
-
 
   const handleInputChange = (field, newValue) => {
     setInput({
       ...Input,
       [field]: newValue,
     });
-    setError(prevError => ({
+    setError((prevError) => ({
       ...prevError,
-      [field]: false
+      [field]: false,
     }));
   };
 
@@ -45,30 +45,16 @@ const UserPrompt = () => {
 
   // 버튼 설정 및 네비게이션
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const status = useSelector((state) => state.root.status);
   const [current, setCurrent] = useState(0);
 
   const next = async () => {
     if (!handleInputError(current)) {
       if (current === steps.length - 1) {
-        console.log('User Input:', Input);
-        try {
-          // const response = await axios.get('/search', {
-          //   params: {
-          //     domain: Input.domain,
-          //     problem: Input.problem,
-          //     solution: Input.solution
-          //   },
-          // });
-          const response = await request.post('/api/v1/search/core', {
-            domain: Input.domain,
-            problem: Input.problem,
-            solution: Input.solution,
-          });
-          
-          console.log('response', response.data)
-          navigate('/root', { state: { data: response.data.results } });
-        } catch (error) {
-          console.error('Error:', error);
+        const response = await dispatch(fetchRootResult(Input));
+        if (fetchRootResult.fulfilled.match(response)) {
+          navigate('/root');
         }
       } else {
         setCurrent(current + 1);
@@ -90,36 +76,36 @@ const UserPrompt = () => {
   const steps = [
     {
       status: current > 0 ? 'finish' : 'process',
-      title: 'Research Domain',
+      title: 'Domain',
       key: 'domain',
       content: (
         <Domain
-          title='Research Domain'
-          subtitle='관심 있는 연구 분야를 작성해주세요.'
+          title="Research Domain"
+          desc="Please fill out the research domain you are interested in."
           Input={Input.domain}
           setInput={(value) => handleInputChange('domain', value)}
           examples={['Computer Vision', 'NLP', 'Financial Engineering']}
           hasError={error.domain}
         />
-      )
+      ),
     },
     {
       status: current > 1 ? 'finish' : current === 1 ? 'process' : 'wait',
       key: 'problem',
-      title: 'Research Problem',
+      title: 'Problem',
       content: (
         <Domain
-          title='Research Problem'
-          subtitle='구체적인 연구 문제를 작성해주세요.'
+          title="Research Problem"
+          desc="Please write the research problem you want to solve."
           Input={Input.problem}
           setInput={(value) => handleInputChange('problem', value)}
           examples={[
             'Lack of foundation model for image segmentation',
-            'Computational overhead of transformer architecture leads processing high resolution visual data difficult'
+            'Computational overhead of transformer architecture leads processing high resolution visual data difficult',
           ]}
           hasError={error.problem}
         />
-      )
+      ),
     },
     {
       status: current === 2 ? 'process' : 'wait',
@@ -127,28 +113,28 @@ const UserPrompt = () => {
       title: 'Solution',
       content: (
         <Domain
-          title='Solution'
-          subtitle='생각하신 문제 해결 방안을 작성해주세요.'
+          title="Solution"
+          desc="Please write down a solution to the problem you have in mind."
           Input={Input.solution}
           setInput={(value) => handleInputChange('solution', value)}
           examples={[
             'Build largest dataset for image segmentation and design new model that trained to be promptable.',
-            'Use specialized tokens as messengers for flexible exchange of visual information across regions and reduce computational complexity'
+            'Use specialized tokens as messengers for flexible exchange of visual information across regions and reduce computational complexity',
           ]}
           hasError={error.solution}
         />
-      )
-    }
+      ),
+    },
   ];
 
   return (
     <div className={`user-prompt-container ${current === 0 ? 'is-first-step' : ''}`}>
       <Steps
-        size='large'
+        size="large"
         current={current}
         onChange={onChange}
         className="site-navigation-steps"
-        items={steps.map(step => ({ status: step.status, title: step.title }))}
+        items={steps.map((step) => ({ status: step.status, title: step.title }))}
       />
       <div className="steps-content">{steps[current].content}</div>
       <div className="steps-action">
@@ -164,7 +150,7 @@ const UserPrompt = () => {
               margin: '0.8px',
               backgroundColor: Input[steps[current].key] ? '#1A67F8' : '#E0F2FE',
               color: Input[steps[current].key] ? 'white' : '#006BBB',
-              opacity: Input[steps[current].key] ? 1 : 0.6
+              opacity: Input[steps[current].key] ? 1 : 0.6,
             }}
             onClick={next}
           >
@@ -178,7 +164,7 @@ const UserPrompt = () => {
               margin: '0.8px',
               backgroundColor: Input[steps[current].key] ? '#1A67F8' : '#E0F2FE',
               color: Input[steps[current].key] ? 'white' : '#006BBB',
-              opacity: Input[steps[current].key] ? 1 : 0.6
+              opacity: Input[steps[current].key] ? 1 : 0.6,
             }}
             onClick={next}
           >

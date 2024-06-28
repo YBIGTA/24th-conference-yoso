@@ -1,19 +1,20 @@
 .user-prompt-container {
-    font-family: 'Noto Sans', sans-serif;
+    font-family: 'Pretendard', sans-serif;
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    margin-top: 8vh;
+    margin-top: 7vh;
     width: 100%;
 }
 
 .site-navigation-steps {
-    width: 77%; 
+    width: 72%; 
     display: flex;
     justify-content: center; 
     margin-bottom: 2vh;
+    font-weight: 500;
 }
 
 .site-navigation-steps .ant-steps-item-icon {
@@ -21,16 +22,17 @@
     height: 30px;
     font-size: 16px;
     line-height: 28px;
+
 }
 
 .site-navigation-steps .ant-steps-item-title {
     font-size: 16.5px;
-    font-family: 'Noto Sans', sans-serif;
+    font-family: 'Pretendard', sans-serif;
 }
 
 .steps-content {
     width: 75%; 
-    margin-top: 4.5vh;
+    margin-top: 5vh;
 }
 
 .steps-action {
@@ -64,9 +66,14 @@ svg {
     margin-top: -1vh;
 }
 
+.bar-logo {
+    margin-left: 5vh;
+}
+
 /*Domain*/
 .head {
     display: flex;
+    margin-top: 2vh;
 }
 
 .characters {
@@ -82,18 +89,12 @@ svg {
     font-weight: bold;
 }
 
-.subtitle {
-    font-size: 19px;
-    margin-left: 7vh;
-    margin-bottom: 20px;
-    font-family: 'Noto Sans KR', 'sans-serif';
-}
 
 .domain-input {
     padding: 10px;
     font-size: 16px;
     margin-bottom: 10px;
-    margin-top: 5vh;
+    margin-top: 8vh;
     width: 100%;
     height: 50px;
     border: 1px solid black;
@@ -204,4 +205,8 @@ svg {
         height: 25px;
         font-size: 12px;
     }
+}
+
+.body{
+    margin-top: 0.4vh;
 }

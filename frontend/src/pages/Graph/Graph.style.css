@@ -1,0 +1,302 @@
+.graph-page {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    font-family: 'Pretendard', sans-serif;
+  }
+  .graph-content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+  
+  .graph-network {
+    flex: 4; 
+    display: flex;
+    flex-direction: column; 
+    background-color: rgba(0,107,187, 0.02);
+  }
+  
+  .graph-network h3 {
+    margin-left: 2vh;
+    margin-bottom: 3vh;
+    margin-top: 4.5vh; 
+    font-size: 20px;
+    font-weight: bold;
+    color: #194185;
+
+  }
+  
+  .graph-network svg {
+    flex: 1; 
+  }
+  
+  .sidebar {
+    flex: 1; 
+    background-color: #fff; 
+    overflow: auto;
+  }
+
+  .expanded-details button{
+    border-radius: 9px;
+    border: 5px #175CD3;
+    background-color: white;
+    color: #175CD3;
+    font-size: 13px;
+  }
+
+  .expanded-details button:hover {
+    background-color:#175CD3;
+    color: white;
+  }
+
+ 
+  
+/*how to read graph accordion*/
+.accordion-container {
+  position: absolute;
+  top: 10vh; 
+  left: 0;
+  width: 100%;
+}
+
+.accordion-button {
+  width: 97%;
+  margin: 0 auto;
+  background-color: rgba(224, 242, 254, 0.74) !important;
+  border-radius: 10px !important;
+}
+
+.accordion-body {
+  width: 97%;
+  margin: 0 auto;
+  background-color: rgba(224, 242, 254, 1);
+  border-radius: 8px !important;
+  font-size: 14px;
+}
+
+.accordion-header img {
+  margin-right: 6px;
+}
+
+svg.network {
+  margin-top: 5vh; 
+}
+
+.graph-network {
+  position: relative;
+}
+
+.back-button {
+  position: absolute; /* 절대 위치 */
+  bottom: 4px; /* 원하는 위치로 조정 */
+  left: 20px; /* 원하는 위치로 조정 */
+  z-index: 10; /* SVG 위에 위치하도록 설정 */
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+
+/*Sidebar*/
+.sidebar {
+  background-color: #fff;
+  font-family: 'Pretendard', sans-serif;
+  margin-top: 1.5vh;
+}
+
+.list-title {
+  display: flex;
+  margin-top: 3vh;
+  margin-left: 1vh;
+}
+
+.list-title h4 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+
+.expand-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: #1A67F8;
+  color: white;
+  border: none;
+  margin-left: 1.3vh;
+  margin-top: 0.3vh;
+}
+
+.expand-button svg {
+  font-size: 24px; /* 아이콘 크기 조정 */
+  margin: 0;
+}
+
+.sort-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 5px;
+  margin-right: 6px;
+}
+
+.sort-buttons span {
+  margin-right: 5px;
+  font-size: 12px;
+}
+
+
+.sort-button {
+  padding: 5px 10px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+  margin-left: 5px;
+}
+
+.sort-button.active {
+  border-color: #1A67F8;
+  color: #1A67F8;
+}
+
+.node-extra-details {
+  display:flex;
+  flex-direction: column;
+  padding: 16px;
+  background-color: white;
+  border: 1px solid #175CD3;
+}
+
+.extratitle{
+  font-size:14px;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.authors {
+  color: #525151;
+  font-size: 13px;
+  margin-bottom: 5px;
+}
+
+.authors span {
+  color: black;
+  font-weight: 600;
+}
+
+.citation {
+  font-size: 13px;
+  margin-bottom: 10px;
+  color: #194185;
+  font-weight: 500;
+}
+
+.citation span{
+  color: black;
+  font-weight: 400;
+}
+
+.keywords{
+  font-size: 13px;
+  color:#194185;
+  font-weight: 500; 
+}
+
+.keywords span {
+  color: black;
+  font-weight: 400;
+}
+
+
+.node-detail-list {
+  overflow-y: auto;
+  height: calc(100% - 128px); /* Adjust height based on your header/footer */
+}
+
+.node-detail {
+  padding: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.node-detail:hover {
+  background-color: #f5f5f5;
+}
+
+.node-detail.highlighted {
+  background-color: rgba(105,155,247,0.25);
+}
+
+.node-title {
+  display: flex;
+  flex-direction: column;
+}
+
+.root-node {
+  color: #175CD3;
+  font-size: 12px;
+}
+
+.detail-content {
+  display: flex;
+  margin-left: 1.2vh;
+  margin-right: 1.2vh;
+}
+
+.collapsed-details {
+  display: flex;
+  justify-content: space-between;
+}
+
+.expanded-details {
+  display: flex !important;
+  justify-content: space-between;
+}
+
+
+.expanded-details a {
+  color: #175CD3 !important;
+  text-decoration: underline !important;
+  cursor: pointer;
+}
+
+/*node tooltip*/
+.d3-tip {
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+  background-color: #1e3a8a;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  font-size: 12px;
+  z-index: 10;
+}
+
+.d3-tip div {
+  margin-bottom: 5px;
+}
+
+.d3-tip button {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  color: white;
+  text-align: left;
+  padding: 5px;
+}
+
+
+.tooltip-button:hover{
+  background-color: white;
+  color:#1e3a8a;
+}
+
+

@@ -1,5 +1,5 @@
 .root-selection {
-    font-family: 'Noto Sans', sans-serif;
+    font-family: 'Pretendard', sans-serif;
     display: flex;
     flex-direction: column; /* 수직 방향으로 정렬 */
     align-items: center; /* 수평 중앙 정렬 */
@@ -48,7 +48,7 @@
     margin-bottom: 24px;
     text-align: center;
     color:#194185;
-    font-family: 'Noto Sans KR', sans-serif;
+    font-family: 'Poppins', sans-serif;
 }
 
 
@@ -118,11 +118,11 @@
 }
 
 .keyword {
-    background-color: #D1FADF;
-    color: #43BA7F;
+    background-color: rgba(224,242,254,0.74);
+    color: #2B6CD8;
     padding: 2px 8px;
     border-radius: 4px;
-    border-color:#43BA7F;
+    border-color:#2B6CD8;
     margin-right: 8px;
     font-size:14px;
 }
@@ -133,10 +133,10 @@
     justify-content: center;
     width: 18px;
     height: 18px;
-    border: 1px solid #43BA7F;
+    border: 1px solid #2B6CD8;
     border-radius: 50%;
     background-color: white;
-    color: #43BA7F;
+    color: #2B6CD8;
 }
 
 .circle-button svg {

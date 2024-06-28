@@ -1,0 +1,79 @@
+.upload-layout {
+    min-height: 100vh;
+    overflow-y: scroll;
+  }
+  
+  .manager-sider {
+    background-color: #fff !important;
+    width: 200px;
+  }
+  
+  .brand-logo {
+    max-width: 100%;
+    height: auto !important;
+    object-fit: contain;
+    margin-top: 20px;
+    margin-left: -20px;
+  }
+  
+  .manager-logo {
+    height: 32px;
+    margin: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .logo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .manager-menu {
+    margin-top: 40px;
+  }
+  
+  .manager-menu .ant-menu-item-selected {
+    background-color: #1890ff !important;
+    color: white !important;
+  }
+  
+
+  
+  .upload-content {
+    background: #fff;
+    padding: 24px;
+    margin: 0;
+    margin-right: 0px;
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .upload-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 16px;
+  }
+  
+  .desc, .desc2 {
+    margin-top: 20px;
+    font-weight: 500;
+  }
+  
+  .upload-input {
+    margin-bottom: 24px;
+    margin-top: 18px;
+  }
+  
+  .upload-dragger {
+    padding: 24px;
+    background: #fafafa;
+    border: 1px dashed #d9d9d9;
+    height: 40%;
+    border-radius: 4px;
+    margin-top: 18px;
+  }
+  

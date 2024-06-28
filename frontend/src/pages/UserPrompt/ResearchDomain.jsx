@@ -3,7 +3,7 @@ import { DownOutlined, UpOutlined } from '@ant-design/icons';
 import './UserPrompt.style.css';
 import char from '../../char2.png';
 
-const Domain = ({ title, subtitle, Input, setInput, examples, hasError }) => {
+const Domain = ({ title, desc, Input, setInput, examples, hasError }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleInputChange = (event) => {
@@ -37,7 +37,7 @@ const Domain = ({ title, subtitle, Input, setInput, examples, hasError }) => {
       return (
         <textarea
           className={`${inputClass} textarea-input`}
-          placeholder={`Input your ${title} in English`}
+          placeholder={`${desc}`}
           value={Input}
           onChange={handleInputChange}
         />
@@ -48,7 +48,7 @@ const Domain = ({ title, subtitle, Input, setInput, examples, hasError }) => {
       <input
         className={inputClass}
         type='text'
-        placeholder={`Input your ${title} in English`}
+        placeholder={`${desc}`}
         value={Input}
         onChange={handleInputChange}
       />
@@ -91,10 +91,11 @@ const Domain = ({ title, subtitle, Input, setInput, examples, hasError }) => {
         <img src={char} className='characters'/>
         <h1 className="title">{title}</h1>
       </div>
-      <h2 className="subtitle">{subtitle}</h2>
+      <div className='body'>
       {renderInput()}
       {hasError && <div className='error-message'>This field is required.</div>}
       {renderExample()}
+      </div>
     </div>
   );
 };
