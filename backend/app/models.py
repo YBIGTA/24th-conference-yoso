@@ -66,8 +66,8 @@ class Paper(PaperInference):
 
 class PaperCore(PaperBase):
     published_year: str | None = None
-    keywords: list[str] | None = None
-    citations: int | None = None
+    summary: PaperSummary | None = None
+    impact: int | None = None
     authors: list[str] | None = None
 
 
