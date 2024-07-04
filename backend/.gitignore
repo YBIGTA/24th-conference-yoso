@@ -1,0 +1,7 @@
+# misc
+.DS_Store
+.env
+__pycache__/
+
+# database
+db/
