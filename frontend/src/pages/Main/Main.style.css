@@ -1,0 +1,223 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Pretendard', sans-serif;
+    height: 100%;
+    overflow:hidden;
+  }
+
+  .header {
+    background: white;
+    padding: 20px 0;
+    overflow: hidden;
+  }
+  
+  .homepage {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* 가로 중앙 정렬 */
+    align-items: center; /* 세로 중앙 정렬 */
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .content{
+    overflow:hidden !important;
+  }
+  
+  .main-section {
+    background: #194185;
+    color: white;
+    height: 70vh;
+    width: 84vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+  
+  .semi-round {
+    position: absolute;
+    top: 15%; /* 반원을 상단으로 이동 */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 82vw;
+    height: 66vh;
+    background: rgba(21, 112, 223, 0.15);
+    border-radius: 600px 600px 0 0;
+  }
+
+  .content{
+    z-index: 100;
+  }
+
+  .main-title {
+    font-size: 48px;
+    font-weight: bold;
+    margin-top: 5vh;
+  }
+  
+  .main-subtitle {
+    font-size: 16px;
+    margin: 10px 0;
+    z-index:3;
+  }
+  
+  .start-button {
+    background: white;
+    color: #194185;
+    border: none;
+    padding: 8px 15px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 8px !important;
+    margin-top: 24px;
+    z-index:3;
+  }
+  
+  .start-button:hover {
+    background: #00d1b2;
+    color: white;
+  }
+
+  .char-body {
+    margin: 60px 0;
+    transform: rotate(10deg); /* 시계방향으로 10도 회전 */
+  }
+  
+  .tagged {
+    position: absolute;
+    top: 43%; /* y축 위치 조정 */
+    left: 53%;
+    transform: translateX(-50%);
+    width: 96%;
+    height: 250px; /* 태그가 차지할 공간 설정 */
+    z-index: 2; /* 최상단 요소로 설정 */
+  }
+  
+  .tagg {
+    position: absolute;
+    background: rgba(209, 250, 223, 0.7) !important;
+    color: #102A56 !important;
+    width: 12%;
+    border-radius: 20px;
+    padding: 5px 15px;
+  }
+  
+  .tag1 {
+    top: 8%;
+    left: 10%;
+  }
+  
+  .tag2 {
+    top: 8%;
+    right: 18%;
+    width: 5%;
+  }
+  
+  .tag3 {
+    top: 38%;
+    right: 25%;
+  }
+  
+  .tag4 {
+    bottom: 42%;
+    left: 19%;
+  }
+  
+  .tag5 {
+    bottom: 3%;
+    left: 10%;
+  }
+  
+  .tag6 {
+    bottom: 3%;
+    right: 15%;
+  }
+  
+  .legs {
+    position: absolute;
+    top: 77%; /* y축 위치 조정 */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2; /* 최상단 요소로 설정 */
+    display: flex;
+    gap: 10px;
+  }
+  
+  .leg-right, .leg-left {
+    background: #1A67F8;
+    width: 40px;
+    height: 60px;
+    border-radius: 20px;
+    border: 10px black;
+    margin-right: 50px;
+    margin-left: 50px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.35);
+  }
+  
+  .why-choose-us {
+    margin: 40px 0;
+  }
+  
+  .why-choose-us h2 {
+    font-size: 24px;
+  }
+  
+  .highlight {
+    color: #0057b7;
+  }
+  .search-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #0057b7;
+    border-radius: 5px;
+    padding: 10px;
+    width: 80vw;
+    margin: 5px auto;
+    margin-top: -2px;
+    background-color: white;
+    position: relative;
+  }
+  
+  .search-box .text-container {
+    flex: 1;
+    display: flex;
+    justify-content: center; /* 텍스트를 중앙 정렬 */
+  }
+  
+  .search-box span {
+    font-size: 18px;
+    color: #102A56;
+    font-weight: 600;
+  }
+  
+  .search-box .highlight {
+    color: #0057b7;
+    font-weight: 800;
+  }
+  
+  .search-icon {
+    position: absolute;
+    right: 10px;
+    width: 20px;
+    font-weight: bold;
+    color: #0057b7;
+    cursor: pointer;
+  }
+
+  .imgsec{
+    height: 11vh;
+    display: flex;
+    justify-content: flex-start;
+    margin-left: 6vw;
+  }
+
+  .logo{
+    height: 70%;
+    margin-top: 17px;
+    margin-left: 15px;
+  }
