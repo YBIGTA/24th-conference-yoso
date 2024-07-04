@@ -79,7 +79,7 @@ const Manager = () => {
   };
 
   const columns = [
-    { title: 'ID', dataIndex: 'request_id', key: 'request_id' },
+    { title: '#', dataIndex: 'request_id', key: 'request_id' },
     { title: 'Filename', dataIndex: 'filename', key: 'filename' },
     {
       title: 'Requested Date',
@@ -96,14 +96,14 @@ const Manager = () => {
         pdf_uploaded ? <Tag color="green">Done</Tag> : <Tag color="red">False</Tag>,
     },
     {
-      title: 'BBox Detected',
+      title: 'DLA Complete',
       dataIndex: 'bbox_detected',
       key: 'bbox_detected',
       render: (bbox_detected) =>
         bbox_detected ? <Tag color="green">Done</Tag> : <Tag color="red">False</Tag>,
     },
     {
-      title: 'Metadata Parsed',
+      title: 'Metadata Postprocessed',
       dataIndex: 'metadata_parsed',
       key: 'metadata_parsed',
       render: (metadata_parsed) =>

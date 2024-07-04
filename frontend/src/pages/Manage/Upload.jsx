@@ -33,7 +33,8 @@ const UploadPage = () => {
   const uploadProps = {
     name: 'file',
     multiple: false,
-    action: '/api/v1/paper/upload', 
+    // action: '/api/v1/paper/upload', 
+    action: `${process.env.INFERENCE_SERVER_API_URL}/predict?semantic_id=${doi}`,
     onChange(info) {
       const { status } = info.file;
       if (status === 'done') {
@@ -49,9 +50,10 @@ const UploadPage = () => {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('doi', doi);
-
-      const response = await axios.post('165.132.46.92:30497/', formData, {
+      // formData.append('doi', doi);
+      const uri = `${process.env.INFERENCE_SERVER_API_URL}/predict/${doi}`
+      const encoded = encodeURI(uri);
+      const response = await axios.post(encoded, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
