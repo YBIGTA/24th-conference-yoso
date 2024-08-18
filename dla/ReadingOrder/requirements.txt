@@ -1,0 +1,13 @@
+transformers
+deepspeed
+nltk
+loguru
+typer
+rich
+tqdm
+opencv-python
+torch
+datasets
+transformers[torch]
+pydantic
+Pillow
