@@ -18,7 +18,7 @@ download it to your environment.
 	python main.py ./AI_VIT_O_0.json ./reordered.json ./checkpoint-320
 
 This command requires three arguments:
-python main.py input_json_path output_json_path model_path
-input_json_path: The path to your input JSON file containing the document layout.
-output_json_path: The path where the output JSON with the reordered layout will be saved.
-model_path: The path to the model checkpoint you downloaded earlier.
+* python main.py input_json_path output_json_path model_path
+** input_json_path: The path to your input JSON file containing the document layout.
+** output_json_path: The path where the output JSON with the reordered layout will be saved.
+**  model_path: The path to the model checkpoint you downloaded earlier.
