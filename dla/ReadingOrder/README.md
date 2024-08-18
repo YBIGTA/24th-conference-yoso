@@ -11,11 +11,11 @@ we have model path folder in https://drive.google.com/drive/u/0/folders/1_cZYpoa
 
 download it to your environment.
 
-git clone https://github.com/prodong04/you-only-search-once.git
-cd you-only-search-once/dla/ReadingOrder
+  git clone https://github.com/prodong04/you-only-search-once.git
+  cd you-only-search-once/dla/ReadingOrder
 
 ## inference
-python main.py ./AI_VIT_O_0.json ./reordered.json ./checkpoint-320
+  python main.py ./AI_VIT_O_0.json ./reordered.json ./checkpoint-320
 
 This command requires three arguments:
 python main.py input_json_path output_json_path model_path
